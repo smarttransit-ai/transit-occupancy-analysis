@@ -1,5 +1,6 @@
 import bz2
 import pickle
+import pandas as pd
 
 
 # Load any compressed pickle file

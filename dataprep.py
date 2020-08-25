@@ -13,6 +13,9 @@ def compressed_pickle(title, data):
 # load data
 # with zipfile.ZipFile('bus_occupancy_jan_through_jun.csv.zip', 'r') as zip_ref:
 #     zip_ref.extractall()
-#
+
 # df = pd.read_csv('bus_occupancy_jan_through_jun.csv', index_col=0)
 # compressed_pickle('bus_occupancy_jan_through_jun', df)
+
+df = pd.read_csv('nashville_bus_occupancy_dashboard.csv', index_col=0)
+compressed_pickle('nashville_bus_occupancy_dashboard', df)
