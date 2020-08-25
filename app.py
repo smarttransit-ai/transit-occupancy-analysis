@@ -462,4 +462,4 @@ def update_bar_chart(statistic_name, start_date, end_date, service_list, route_l
 
 
 if __name__ == '__main__':
-    app.server.run(threaded=True)
+    app.run_server(host='0.0.0.0', port=8080, debug=True, use_reloader=False)  
