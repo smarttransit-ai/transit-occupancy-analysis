@@ -43,6 +43,10 @@ def decompress_pickle(file):
     data = pickle.load(data)
     return data
 
+def compute_occupancy(df):
+
+    dfs
+
 
 df = decompress_pickle('chattanooga_bus_occupancy_dashboard')
 
@@ -84,5 +88,16 @@ df = df.dropna(axis='columns', subset=['date_time'])
 df['date_time'] = pd.to_datetime(df['date_time'], errors='coerce')
 df['arrival_date'] = df['date_time'].dt.date
 df['arrival_time'] = df['date_time'].dt.time
+
+df['net_count'] = df.apply(lambda row: row['board_count'] - row['alight_count'], axis='columns')
+dfs = df.sort_values(by=['stop_sequence'])
+dfs['raw_occupancy'] = dfs.groupby(by=['date', 'trip_id'])['net_count'].cumsum()
+
+dfs[dfs['raw_occupancy'] < 0]
+gdf = dfs.groupby(by=['date','trip_id'])
+dfs['min_occupancy'] = gdf['raw_occupancy'].min()
+dfs['occupancy'] = dfs.apply(lambda row: row['raw_occupancy'] - row['min_occupancy'], axis='columns')
+gdf.get_group(('2020-04-16', 151780020))
+gdf.get_group(('2020-03-23', 139653020))
 
 compress_pickle('chattanooga_bus_occupancy_dashboard', df)
