@@ -44,11 +44,5 @@ conda activate transit_dashboard
 python app.py
 ```
 
-## Deploying to google
-
-```bash
-gcloud app deploy
-```
-
 
 

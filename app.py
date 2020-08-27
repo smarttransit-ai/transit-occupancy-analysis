@@ -18,13 +18,13 @@ app = dash.Dash(__name__, server=server, meta_tags=[{"name": "viewport", "conten
 mapbox_access_token = "pk.eyJ1Ijoidmlzb3ItdnUiLCJhIjoiY2tkdTZteWt4MHZ1cDJ4cXMwMnkzNjNwdSJ9.-O6AIHBGu4oLy3dQ3Tu2XA"
 px.set_mapbox_access_token(mapbox_access_token)
 
-# load data
-# df = dataextract.decompress_pickle('bus_occupancy_jan_through_jun.pbz2')
-df = dataextract.decompress_pickle('nashville_bus_occupancy_dashboard.pbz2')
+# load  Nashville data
+df = dataextract.decompress_pickle('data/nashville/nashville_bus_occupancy_dashboard.pbz2')
 df['trip_start_time'] = df['trip_start_time'].str.slice(stop=5)
-print(dt.datetime.now(), "data loaded into df")
 
-# session_id = str(uuid.uuid4())
+# load  Chattanooga data
+#df = dataextract.decompress_pickle('data/chattanooga/chattanooga_bus_occupancy_dashboard.pbz2')
+#df['trip_start_time'] = df['trip_start_time'].str.slice(stop=5)
 
 # Layout of Dash App
 app.layout = html.Div(
