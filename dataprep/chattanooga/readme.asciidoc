@@ -3,7 +3,7 @@
 This folder contains a Jupyter Notebook that explains how the Chattanooga dataset used in the dashboard was created. The dataset comes from a join of CARTA RideCheck (automatic passenger counter) data and static GTFS feeds.
 
 
-*Field Definitions* (actual data is located under data/chattanooga in a .pbz2 file):
+*Field Definitions For Dashboard Data* (actual data is located under data/chattanooga in a .pbz2 file):
 
 - *trip_id:* same as GTFS
 - *arrival_time:* same as GTFS
