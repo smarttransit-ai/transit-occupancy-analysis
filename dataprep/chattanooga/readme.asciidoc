@@ -17,11 +17,11 @@ This folder contains a Jupyter Notebook that explains how the Chattanooga datase
 - *board_count:* number of people getting ON the bus at the stop (PASSENGERS_ON in RideCheck data)
 - *alight_count:* number of people getting OFF the bus at the stop (PASSENGERS_OFF in RideCheck data)
 - *direction_desc:* the direction of the bus, either INBOUND or OUTBOUND (DIRECTION_NAME in RideCheck data)
---- TO FIX: see issue tracker
+--- *TO FIX: see issue tracker*
 - *service_period:* one of the following: Weekday, Saturday, or Sunday
 - *date:* the date of the data in YYYY-MM-DD format
 - *date_time:* date + " " + arrival_time
 - *trip_start_time:* the earliest known stop time on the trip
---- TO FIX: see issue tracker
+--- *TO FIX: see issue tracker*
 - *trip_name:* trip_start_time + " (TRIP ID: " + trip_id + ")"
 - *day_of_week:* a value from 0 - 6, where Monday = 0, Tuesday = 1, ... Sunday = 6
