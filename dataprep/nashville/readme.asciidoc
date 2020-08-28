@@ -2,7 +2,7 @@
 
 This folder contains a Jupyter Notebook that explains how the Nashville dataset used in the dashboard was created. This dataset comes from a join of Nashville APC (automatic passenger counter) data and static GTFS feeds.
 
-*Field Definitions For Dashboard Data*
+*Field Definitions For Dashboard Data* (actual data is located under data/nashville in a .pbz2 file):
 
 - *trip_id:* same as GTFS
 - *arrival_date:* same as GTFS
