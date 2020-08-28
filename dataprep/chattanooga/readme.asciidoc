@@ -12,10 +12,11 @@ This folder contains a Jupyter Notebook that explains how the Chattanooga datase
 - *stop_name:* same as GTFS
 - *stop_lat:* same as GTFS
 - *stop_lon:* same as GTFS
-- *route_id::* same as GTFS
+- *route_id:* same as GTFS
 - *direction_id:* same as GTFS
 - *board_count:* number of people getting ON the bus at the stop (PASSENGERS_ON in RideCheck data)
 - *alight_count:* number of people getting OFF the bus at the stop (PASSENGERS_OFF in RideCheck data)
+- *occupancy:* number of people IN the bus (PASSENGERS_IN in RideCheck data)
 - *direction_desc:* the direction of the bus, either INBOUND or OUTBOUND (DIRECTION_NAME in RideCheck data)
 --- *TO FIX: see issue tracker*
 - *service_period:* one of the following: Weekday, Saturday, or Sunday
