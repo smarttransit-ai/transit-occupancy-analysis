@@ -1,1 +1,25 @@
-This is nashville data prep
+= Nashville Data Prep
+
+This folder contains a Jupyter Notebook that explains how the Nashville dataset used in the dashboard was created. This dataset comes from a join of Nashville APC (automatic passenger counter) data and static GTFS feeds.
+
+*Field Definitions For Dashboard Data*
+- *trip_id:* same as GTFS
+- *arrival_date:* same as GTFS
+- *stop_id:* same as GTFS
+- *stop_sequence* same as GTFS
+- *stop_name:* same as GTFS
+- *stop_lat:* same as GTFS
+- *stop_lon:* same as GTFS
+- *route_id:* same as GTFS
+- *direction_id:* same as GTFS
+- *initial_load:* number of people on board the bus at the beginning of the trip
+- *board_count:* number of people getting ON the bus at the stop
+- *alight_count:* number of people getting OFF the bus at the stop
+- *occupancy:* number of people IN the bus at the stop
+- *date:* the date of the data in YYYY-MM-DD format 
+- *date_time:* date + " " + arrival_time
+- *service_period:* one of the following: Weekday, Saturday, or Sunday
+- *trip_start_time:* the earliest known stop time on the trip (the arrival_time of the bus at stop_sequence = 1)
+- *trip_name:* trip_start_time + " (TRIP ID: " + trip_id + ")"
+- *day_of_week:* a value from 0 - 6, where Monday = 0, Tuesday = 1, ..., Sunday = 6
+
