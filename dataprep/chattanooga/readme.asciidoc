@@ -1,1 +1,3 @@
 = This is chattanooga data prep
+
+This folder contains a Jupyter Notebook that explains how the Chattanooga dataset used in the dashboard was created. The dataset comes from a join of CARTA RideCheck (automatic passenger counter) data and static GTFS feeds.
