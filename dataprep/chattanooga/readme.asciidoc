@@ -1,3 +1,27 @@
 = This is chattanooga data prep
 
 This folder contains a Jupyter Notebook that explains how the Chattanooga dataset used in the dashboard was created. The dataset comes from a join of CARTA RideCheck (automatic passenger counter) data and static GTFS feeds.
+
+
+*Field Definitions* (actual data is located under data/chattanooga in a .pbz2 file):
+
+- *trip_id:* same as GTFS
+- *arrival_time:* same as GTFS
+- *stop_id:* same as GTFS
+- *stop_sequence:* same as GTFS
+- *stop_name:* same as GTFS
+- *stop_lat:* same as GTFS
+- *stop_lon:* same as GTFS
+- *route_id::* same as GTFS
+- *direction_id:* same as GTFS
+- *board_count:* number of people getting ON the bus at the stop (PASSENGERS_ON in RideCheck data)
+- *alight_count:* number of people getting OFF the bus at the stop (PASSENGERS_OFF in RideCheck data)
+- *direction_desc:* the direction of the bus, either INBOUND or OUTBOUND (DIRECTION_NAME in RideCheck data)
+--- TO FIX: original data may have had some typos
+- *service_period:* one of the following: Weekday, Saturday, or Sunday
+- *date:* the date of the data in YYYY-MM-DD format
+- *date_time:* date + " " + arrival_time
+- *trip_start_time:* the earliest known stop time on the trip
+--- TO FIX: this was calculated by taking the earliest stop arrival_time based on stop_sequence for each trip_id. However, there are some trip_ids where stop_sequence = 1 did not exist, so they used the arrival time of stop_sequence = 2 (or stop_sequence = 3, if stop_sequence = 2 also did not exist). There's a field in the original RideCheck data called 'TRIP_START_TIME' which could be used instead, but many rows are missing a proper start time (i.e., TRIP_START_TIME = '1/1/00' instead of '1/1/00 18:30')
+- *trip_name:* trip_start_time + " (TRIP ID: " + trip_id + ")"
+- *day_of_week:* a value from 0 - 6, where Monday = 0, Tuesday = 1, ... Sunday = 6
