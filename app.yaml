@@ -16,7 +16,7 @@ handlers:
   redirect_http_response_code: 301
 
 
-entrypoint: gunicorn -b 0.0.0.0:8080 transit:server --timeout 800
+entrypoint: gunicorn -b 0.0.0.0:8080 transitapp:server --timeout 800
 
 
 
