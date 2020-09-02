@@ -16,6 +16,10 @@ from datetime import datetime as dt
 from datetime import time as tt
 import zipfile
 
+import os
+
+print(os.getpid())
+
 #server = flask.Flask(__name__)
 #server.secret_key = os.environ.get('secret_key', str(randint(0, 1000000)))
 server = flask.Flask(__name__)
@@ -29,7 +33,7 @@ px.set_mapbox_access_token(mapbox_access_token)
 
 # %%
 df = dataextract.decompress_pickle('nashville_bus_occupancy_dashboard-dubey.pbz2')
-
+#print("loaded the file frame ******")
 # %%
 routes=df.route_id.unique() 
 directions=df.direction_desc.unique() 
@@ -71,31 +75,14 @@ def select_data(routes,timemin,timemax,startdate,enddate,directions,days, months
     else:
         weekday_condition= ((df['dayofweek']).isin(days))
     occupancy_condition=(df['occupancy'] >= 0)
-    result = df.loc[occupancy_condition &  datecondtition &  route_condition & direction_condition & month_condition & weekday_condition]# & route_condition & datecondtition  & weekday_condition]
+    # &  datecondtition &  route_condition & 
+    result = df.loc[occupancy_condition & datecondtition & route_condition & direction_condition & month_condition & weekday_condition]# & route_condition & datecondtition  & weekday_condition]
+    #print("here")
+    #print(len(result))
+    #print("here")
+    
     return result
-    
-    
-    
-    
-    
-
-# %%
-def find_maximum_by_stop(dataframe):
-    result=dataframe.groupby(['trip_start_time','route_id','direction_desc','year','month','day','stop_id','stop_sequence','stop_name','stop_lat','stop_lon'], as_index=False)['occupancy'].max()
-    return result
-    
-
-# %%
-def find_maximum_by_trip(dataframe):
-    result=dataframe.groupby(['trip_start_time','route_id','direction_desc','year','month','day'], as_index=False)['occupancy'].max()
-    return result
-
-# %%
-#result=find_maximum_by_stop(select_data(None,0,10.5,1,10,None))
-#result=find_maximum_by_trip(select_data(None,0,10,1,10,1,30,None))
-
-# %%
-#result.head()
+  
 
 # %%
 
@@ -246,23 +233,15 @@ app.layout = html.Div(
                                         value=[0, 24],
                                         marks={i: '{}:00'.format(str(i).zfill(2)) for i in range(0, 25,4)},
                                     ),
-                                    #dcc.Markdown('''##  Filter by Response Time (min).''') ,
-                                    html.Div(style={'text-align': 'center','display':'none'},children=[dcc.Slider(
-                                                                id='responsetime-value',
-                                                                min=0,
-                                                                max=70,
-                                                                step=0.5,
-                                                                marks={i: '{}'.format(i) for i in range(0, 70,10)},
-                                                                value=0
-                                                            ),],),    
+                                    
                                                 ]
                                     ),
-                                     html.Div(children=[dcc.RadioItems( id='histogram-basis',
+                        html.Div(children=[dcc.RadioItems( id='occupancy-basis',
                                           options=[                                             
-                                              {'label': 'Group By Month', 'value': 'month'},
-                                              {'label': 'Group By Day', 'value': 'day'},],
+                                              {'label': 'Show Occupancy', 'value': 'occupancy'},
+                                              {'label': 'Show Boardings', 'value': 'boarding'},],
                                         labelStyle={'display': 'inline-block'} ,     
-                                        value='month',style={'text-align': 'center'},
+                                        value='occupancy',style={'text-align': 'center'},
                                     )]),
                                     html.Div(style={'text-align': 'center','display':'none'}, children=[html.P('Incidents',id='incident-text',style={'text-align': 'left','font-weight': 'bold'}),
                                                        html.P('Months',id='month-text',style={'text-align': 'left','font-weight': 'bold'}),
@@ -280,8 +259,9 @@ app.layout = html.Div(
                         #html.Div(className="div-for-dropdown", children=[html.P(id='heatmap-text',style={'text-align': 'center'})]),     
                         html.Div(children=[dcc.RadioItems( id='histogram-trip',
                                           options=[                                             
-                                              {'label': 'Group By Stops', 'value': 'stops'},
-                                              {'label': 'Group By Trips', 'value': 'trips'},],
+                                              {'label': 'Show By Stops', 'value': 'stops'},
+                                              {'label': 'Show By Trips', 'value': 'trips'},
+                                              {'label': 'Show By Routes', 'value': 'routes'}],
                                         labelStyle={'display': 'inline-block'} ,     
                                         value='stops',style={'text-align': 'center'},
                                     )]),                  
@@ -312,10 +292,10 @@ app.layout = html.Div(
     Input("month-selector", "value"),
     Input("direction-selector", "value"),
     Input("day-selector", "value"),
-    Input("histogram-basis","value"),    
+    Input("occupancy-basis","value"),    
     Input("time-slider", "value"),Input("histogram-trip","value"),]
 )
-def update_histogram(start_date, end_date,  busroutes, months, directions,days,histogramkind,timerange,histogramtrip):
+def update_histogram(start_date, end_date,  busroutes, months, directions,days,occupancykind,timerange,histogramtrip):
     timemin,timemax=timerange
     #start_date,end_date
     #bus-routes
@@ -324,37 +304,80 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,h
     result=select_data(busroutes,timemin,timemax,start_date,end_date,directions,days,months)
     #result=find_maximum_by_stop(result)   'date','month','year','day'
     if histogramtrip == "stops":
-        meanresult=result.groupby(['trip_start_time','route_id','stop_id','direction_desc','date','month','year','stop_sequence','stop_name','stop_lat','stop_lon'], as_index=False)['occupancy'].max()
-        #print(len(meanresult))    
-        if histogramkind=="month":
-            meanresult=meanresult.groupby(['route_id','stop_id','stop_name','stop_lat','stop_lon','month'], as_index=False)['occupancy'].mean()
-            animation_frame="month"
-            animation_group="stop_id"
-        elif histogramkind=="day":
-            meanresult=meanresult.groupby(['route_id','stop_id','stop_name','stop_lat','stop_lon','date'], as_index=False)['occupancy'].mean()    
-            animation_frame="date"
-            animation_group="stop_id"
-        meanresult['occupancy']= meanresult['occupancy'].round().astype(int)
-        meanresult['route_id']= meanresult['route_id'].round().astype(str)               
-        occupancymax= meanresult['occupancy'].max()
-        fig = px.bar(meanresult,labels={'stop_id':'Stops','occupancy':'Mean of Max Occupancy'}, x="stop_id", y="occupancy",color="route_id",animation_frame=animation_frame,animation_group=animation_group,range_y=[0,20])
+        if occupancykind == "occupancy":
+            meanresult=result.groupby(['trip_start_time','route_id','stop_id','direction_desc','date','month','year','stop_sequence','stop_name','stop_lat','stop_lon'], as_index=False)['occupancy'].max()
+            #print(len(meanresult))    
+            # if histogramkind=="month":
+            #     meanresult=meanresult.groupby(['route_id','stop_id','stop_name','stop_lat','stop_lon','month'], as_index=False)['occupancy'].mean()
+            #     animation_frame="month"
+            #     animation_group="stop_id"
+            # elif histogramkind=="day":
+            #     meanresult=meanresult.groupby(['route_id','stop_id','stop_name','stop_lat','stop_lon','date'], as_index=False)['occupancy'].mean()    
+            #     animation_frame="date"
+            #     animation_group="stop_id"
+            meanresult['occupancy']= meanresult['occupancy'].round().astype(int)
+            meanresult['route_id']= meanresult['route_id'].astype(str)               
+            occupancymax= meanresult['occupancy'].max()
+            fig = px.box(meanresult,labels={'stop_id':'Stops','occupancy':'Max Occupancy'}, x="stop_id", y="occupancy",color="route_id",
+            #animation_frame=animation_frame,animation_group=animation_group,
+            # 
+                #range_y=[0,20]
+                )
+        elif occupancykind == "boarding":
+            meanresult=result.groupby(['trip_start_time','route_id','stop_id','direction_desc','date','month','year','stop_sequence','stop_name','stop_lat','stop_lon'], as_index=False)['board_count'].sum()
+            meanresult['board_count']= meanresult['board_count'].round().astype(int)
+            fig = px.box(meanresult,labels={'stop_id':'Stops','board_count':'Boardings'}, x="stop_id", y="board_count",color="route_id",)
+
+    elif histogramtrip == "trips":
+        if occupancykind == "occupancy":
+            meanresult=result.groupby(['trip_start_time','route_id','direction_desc','date','month','year'], as_index=False)['occupancy'].max()
+            #print(len(meanresult))    
+            # if histogramkind=="month":
+            #     meanresult=meanresult.groupby(['trip_start_time','route_id','direction_desc','month'], as_index=False)['occupancy'].mean()
+            #     animation_frame="month"
+            #     animation_group="trip_start_time"
+            # elif histogramkind=="day":
+            #     meanresult=meanresult.groupby(['trip_start_time','route_id','direction_desc','date'], as_index=False)['occupancy'].mean()    
+            #     animation_frame="date"
+            #     animation_group="trip_start_time"
+            meanresult['occupancy']= meanresult['occupancy'].round().astype(int)
+            meanresult['route_id']= meanresult['route_id'].astype(str)        
+            occupancymax= meanresult['occupancy'].max()
         
-    else:
-        meanresult=result.groupby(['trip_start_time','route_id','direction_desc','date','month','year'], as_index=False)['occupancy'].max()
-        #print(len(meanresult))    
-        if histogramkind=="month":
-            meanresult=meanresult.groupby(['trip_start_time','route_id','direction_desc','month'], as_index=False)['occupancy'].mean()
-            animation_frame="month"
-            animation_group="trip_start_time"
-        elif histogramkind=="day":
-            meanresult=meanresult.groupby(['trip_start_time','route_id','direction_desc','date'], as_index=False)['occupancy'].mean()    
-            animation_frame="date"
-            animation_group="trip_start_time"
-        meanresult['occupancy']= meanresult['occupancy'].round().astype(int)
-        meanresult['route_id']= meanresult['route_id'].round().astype(str)        
-        occupancymax= meanresult['occupancy'].max()
-      
-        fig = px.bar(meanresult, labels={'trip_start_time':'Trips','occupancy':'Mean of Max Occupancy'}, x="trip_start_time", y="occupancy",color="route_id",animation_frame=animation_frame,animation_group=animation_group,range_y=[0,20])
+            fig = px.box(meanresult, labels={'trip_start_time':'Trips','occupancy':'Max Occupancy'}, x="trip_start_time", y="occupancy",color="route_id",
+            #animation_frame=animation_frame,animation_group=animation_group,
+                #range_y=[0,20]
+                )
+        elif occupancykind == "boarding":
+            meanresult=result.groupby(['trip_start_time','route_id','direction_desc','date','month','year'], as_index=False)['board_count'].sum()
+            meanresult['board_count']= meanresult['board_count'].round().astype(int)
+            fig = px.box(meanresult,labels={'trip_start_time':'Trips','board_count':'Boardings'}, x="trip_start_time", y="board_count",color="route_id",)
+
+    elif histogramtrip == "routes":
+        if occupancykind == "occupancy":
+            meanresult=result.groupby(['route_id','direction_desc','date','month','year'], as_index=False)['occupancy'].max()
+            #print(len(meanresult))    
+            # if histogramkind=="month":
+            #     meanresult=meanresult.groupby(['trip_start_time','route_id','direction_desc','month'], as_index=False)['occupancy'].mean()
+            #     animation_frame="month"
+            #     animation_group="trip_start_time"
+            # elif histogramkind=="day":
+            #     meanresult=meanresult.groupby(['trip_start_time','route_id','direction_desc','date'], as_index=False)['occupancy'].mean()    
+            #     animation_frame="date"
+            #     animation_group="trip_start_time"
+            meanresult['occupancy']= meanresult['occupancy'].round().astype(int)
+            meanresult['route_id']= meanresult['route_id'].astype(str)        
+            occupancymax= meanresult['occupancy'].max()
+        
+            fig = px.box(meanresult, labels={'route_id':'Routes','occupancy':'Max Occupancy'}, x="route_id", y="occupancy",color="route_id",
+            #animation_frame=animation_frame,animation_group=animation_group,
+                #range_y=[0,20]
+                )
+        elif occupancykind == "boarding":
+            meanresult=result.groupby(['route_id','direction_desc','date','month','year'], as_index=False)['board_count'].sum()
+            meanresult['board_count']= meanresult['board_count'].round().astype(int)
+            meanresult['route_id']= meanresult['route_id'].astype(str)   
+            fig = px.box(meanresult,labels={'route_id':'Routes','board_count':'Boardings'}, x="route_id", y="board_count",color="route_id",)
     
     fig.update_layout(
         autosize=True,
@@ -366,7 +389,7 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,h
         font=dict(color="white"),
         paper_bgcolor="#31302F",
         yaxis=dict(                                    
-            range=[0, 20],
+            #range=[0, occupancymax+2],
             showticklabels=True,
             showgrid=False,
             fixedrange=True,
@@ -388,10 +411,10 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,h
     Input("month-selector", "value"),
     Input("direction-selector", "value"),
     Input("day-selector", "value"),
-    Input("histogram-basis","value"),    
+    Input("occupancy-basis","value"),    
     Input("time-slider", "value")]
 )
-def update_map_graph(start_date, end_date,  busroutes, months, directions,days,histogramkind,timerange):
+def update_map_graph(start_date, end_date,  busroutes, months, directions,days,occupancykind,timerange):
     timemin,timemax=timerange
     #start_date,end_date
     #bus-routes
@@ -399,37 +422,60 @@ def update_map_graph(start_date, end_date,  busroutes, months, directions,days,h
     lonInitial=-86.774372
     result=select_data(busroutes,timemin,timemax,start_date,end_date,directions,days,months)
     #result=find_maximum_by_stop(result)   'date','month','year','day'
-    meanresult=result.groupby(['trip_id','route_id','stop_id','direction_desc','date','month','year','stop_sequence','stop_name','stop_lat','stop_lon'], as_index=False)['occupancy'].max()
-    #print(len(meanresult))
-    # if histogramkind=="month":
-    #     meanresult=meanresult.groupby(['route_id','stop_id','stop_name','stop_lat','stop_lon','month'], as_index=False)['occupancy'].mean()
-    #     animation_frame="month"
-    #     animation_group="stop_id"
-    # elif histogramkind=="day":
-    #     meanresult=meanresult.groupby(['route_id','stop_id','stop_name','stop_lat','stop_lon','date'], as_index=False)['occupancy'].mean()    
-    #     animation_frame="date"
-    #     animation_group="stop_id"
-    meanresult=meanresult.groupby(['route_id','stop_id','stop_name','stop_lat','stop_lon'], as_index=False)['occupancy'].mean()  
-    meanresult['occupancy']= meanresult['occupancy'].round().astype(int)
-    occupancymax= meanresult['occupancy'].max()
-    #print(len(meanresult))
-    fig = px.scatter_mapbox(meanresult,
-                            lat="stop_lat",
-                            lon="stop_lon",
-                            color="occupancy",
-                            #animation_frame=animation_frame,
-                            #animation_group=animation_group,
-                            #size="occupancy",
-                            range_color=[0, 20],#color_continuous_midpoint=10,
-                            text='stop_name',
-                            mapbox_style="light",
-                            color_continuous_scale=px.colors.cyclical.IceFire,
-                            zoom=10)
+    if occupancykind == "occupancy":
+        meanresult=result.groupby(['trip_id','route_id','stop_id','direction_desc','date','month','year','stop_sequence','stop_name','stop_lat','stop_lon'], as_index=False)['occupancy'].max()
+        #print(len(meanresult))
+        # if histogramkind=="month":
+        #     meanresult=meanresult.groupby(['route_id','stop_id','stop_name','stop_lat','stop_lon','month'], as_index=False)['occupancy'].mean()
+        #     animation_frame="month"
+        #     animation_group="stop_id"
+        # elif histogramkind=="day":
+        #     meanresult=meanresult.groupby(['route_id','stop_id','stop_name','stop_lat','stop_lon','date'], as_index=False)['occupancy'].mean()    
+        #     animation_frame="date"
+        #     animation_group="stop_id"
+        meanresult=meanresult.groupby(['route_id','stop_id','stop_name','stop_lat','stop_lon'], as_index=False)['occupancy'].mean()  
+        meanresult['occupancy']= meanresult['occupancy'].round().astype(int)
+        occupancymax= meanresult['occupancy'].max()
+        #print(len(meanresult))
+        fig = px.scatter_mapbox(meanresult,
+                                lat="stop_lat",
+                                lon="stop_lon",
+                                color="occupancy",
+                                #animation_frame=animation_frame,
+                                #animation_group=animation_group,
+                                #size="occupancy",
+                                range_color=[0, 20],#color_continuous_midpoint=10,
+                                text='stop_name',
+                                mapbox_style="light",
+                                #color_continuous_scale=px.colors.cyclical.IceFire,
+                                zoom=10)
+        title='Mean Max Occupancy per stop'
+    elif occupancykind=="boarding":
+        #meanresult=result.groupby(['trip_id','route_id','stop_id','direction_desc','date','month','year','stop_sequence','stop_name','stop_lat','stop_lon'], as_index=False)['board_count'].sum()
+        meanresult=result.groupby(['stop_id','stop_name','stop_lat','stop_lon'], as_index=False)['board_count'].sum() 
+        print(meanresult.head()) 
+        title='Boardings per stop'
+        print(meanresult.board_count.median()) 
+        medianvalue=meanresult.board_count.median()
+        fig = px.scatter_mapbox(meanresult,
+                                lat="stop_lat",
+                                lon="stop_lon",
+                                color="board_count",
+                                #animation_frame=animation_frame,
+                                #animation_group=animation_group,
+                                #size="occupancy",
+                                range_color=[0, int(medianvalue)],
+                                #color_continuous_midpoint=meanresult.board_count.median(),
+                                text='stop_name',
+                                mapbox_style="light",
+                                #color_continuous_scale=px.colors.cyclical.IceFire,
+                                zoom=10)
     fig.update_layout(
         autosize=True,
         margin=go.layout.Margin(l=0, r=35, t=0, b=0),
         plot_bgcolor="#1E1E1E",
         paper_bgcolor="#1E1E1E",
+        title_text= title,
         hoverlabel=dict(font=dict(size=12))
     )
     
