@@ -244,26 +244,28 @@ app.layout = html.Div(
                         #html.Div(className="div-for-dropdown", children=[html.P(id='heatmap-text',style={'text-align': 'center'})]),     
                         html.Div(children=[dcc.RadioItems( id='histogram-trip',
                                           options=[                                             
-                                            #  {'label': 'Show By Stops', 'value': 'stops'},
+                                              {'label': 'Show By Stops', 'value': 'stops','disabled':True},
                                               {'label': 'Show By Trips', 'value': 'trips'},
                                               {'label': 'Show By Routes', 'value': 'routes'}],
                                         labelStyle={'display': 'inline-block'} ,     
                                         value='routes',style={'text-align': 'center'},
                                     )]),                  
                         dcc.Graph(id="histogram"),
+                        dcc.Markdown(id="warning-text",children=['# Please select one route for showing stop information.'],style={'text-align': 'center','display':'none'})
                     ],
                 ),
             ],
         ),
         html.Div(
             className="row",
-            children=[html.Div(className="div-for-dropdown", style={'text-align': 'center','display':'none'},
+            children=[html.Div(className="div-for-dropdown", 
                                             children=[
-                                                dcc.Markdown('Site designed by [ScopeLab from Vanderbilt University](http://scopelab.ai/) starting from [the Uber Ride Demo from Plotly](https://github.com/plotly/dash-sample-apps/tree/master/apps/dash-uber-rides-demo). Data source: Nashville Fire Department. Funding for this work has been provided by the National Science Foundation under awards [CNS-1640624](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1640624) and  [IIS-1814958](https://www.nsf.gov/awardsearch/showAward?AWD_ID=1814958). Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.')]),                                   
+                                                dcc.Markdown('Site designed by [ScopeLab](http://scopelab.ai/) starting from [the Uber Ride Demo from Plotly](https://github.com/plotly/dash-sample-apps/tree/master/apps/dash-uber-rides-demo). Data source: Nashville WeGo. Funding for this work has been provided by the National Science Foundation under awards [CNS-2029950](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2029950) and CNS-2029952](https://www.nsf.gov/awardsearch/showAward?AWD_ID=2029952). Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.')]),                                   
             ]
         ),
     ]
 )
+
 
 
 def return_seconds(time):
@@ -275,6 +277,7 @@ def return_seconds(time):
 #print(max_occupancy_board_by_trip_day.dtypes)
 #result= max_occupancy_board_by_trip_day [  (max_occupancy_board_by_trip_day['time_day_seconds']>return_seconds(starttime)) & (max_occupancy_board_by_trip_day['datetime']>st)   ]
 #print(result.head())
+
 
 
 
@@ -365,6 +368,33 @@ def update_map(start_date, end_date,  busroutes, months, directions,days,occupan
     return  fig
 
 
+@app.callback(
+     Output('histogram-trip', 'options'),
+    [Input('bus-routes', 'value')]
+)
+def update_histogram_options(busroutes):
+    #options1=[{'label': 'Show By Stops', 'value': 'stops','disabled':True},
+                                            #  {'label': 'Show By Trips', 'value': 'trips'},
+                                            #  {'label': 'Show By Routes', 'value': 'routes'}]
+
+    #options2=[{'label': 'Show By Stops', 'value': 'stops','disabled':False},
+                                            #  {'label': 'Show By Trips', 'value': 'trips'},
+                                            #  {'label': 'Show By Routes', 'value': 'routes'}],
+    if busroutes is None or len(busroutes)!=1:
+        return [{'label': 'Show By Trips', 'value': 'trips'},{'label': 'Show By Routes', 'value': 'routes'}]
+    else:
+        return [{'label': 'Show By Stops', 'value': 'stops'},{'label': 'Show By Trips', 'value': 'trips'},{'label': 'Show By Routes', 'value': 'routes'}]
+
+    
+
+@app.callback(
+     Output('histogram-trip', 'value'),
+    [Input('histogram-trip', 'options')]
+)
+def set_histogram_value (available_options):
+    i=len(available_options)
+    return available_options[i-1]['value']
+
 # %%
 @app.callback(
     Output('histogram', 'figure'),
@@ -380,6 +410,11 @@ def update_map(start_date, end_date,  busroutes, months, directions,days,occupan
 )
 def update_histogram(start_date, end_date,  busroutes, months, directions,days,occupancykind,timerange,histogramtrip):
     #setup time condition
+    
+    if histogramtrip=='stops' and (busroutes is None or len (busroutes) >1):
+        return {}
+    
+    
     max_occupancy_board_by_trip_day=dd.read_parquet('data/nashville/max_occupancy_board_by_trip_day.parquet', engine='fastparquet')
     max_occupancy_board_by_stop_day=dd.read_parquet('data/nashville/max_occupancy_board_by_stop_day.parquet', engine='fastparquet')
     max_occupancy_board_by_route_day=dd.read_parquet('data/nashville/max_occupancy_board_by_route_day.parquet', engine='fastparquet')
@@ -442,7 +477,7 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
     if histogramtrip=='trips':
         result_max_occupancy_board_by_trip_day = max_occupancy_board_by_trip_day [  (route_condition) & (direction_condition) & (datecondtition) & (month_condition) &(timecondition) & (weekday_condition) ].compute().sort_values(['time_day_seconds'])
         if(len(result_max_occupancy_board_by_trip_day.index) ==0) :return {}
-        fig2 = px.box(result_max_occupancy_board_by_trip_day,labels={'trip_start_time':'Trips','occupancy':'Max Occupancy'}, x="trip_start_time", y="occupancy",color="route_id",)
+        fig2 = px.box(result_max_occupancy_board_by_trip_day,labels={'trip_start_time':'Trips','occupancy':'Max Daily Occupancy'}, x="trip_start_time", y="occupancy",color="route_id",hover_data=['route_id'])
         fig2.update_layout(
             autosize=True,
             bargap=0.1,
@@ -469,13 +504,13 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
     elif histogramtrip=='stops':
         result_max_occupancy_board_by_stop_day=max_occupancy_board_by_stop_day [ (route_condition2) & (direction_condition2) & (month_condition2) &  (datecondtition2)  & (timecondition2)  & (weekday_condition2)  ].compute()
         if(len(result_max_occupancy_board_by_stop_day.index) ==0) :return {}
-        fig2 = px.box(result_max_occupancy_board_by_stop_day,labels={'stop_id':'Stops','occupancy':'Max Occupancy'}, x="stop_id", y="occupancy",color="route_id",)
+        fig2 = px.box(result_max_occupancy_board_by_stop_day,labels={'stop_id':'Stops','occupancy':'Max Daily Occupancy '}, x="stop_id", y="occupancy",color="direction_desc",hover_data=['stop_name','route_id'],)
         fig2.update_layout(
             autosize=True,
             bargap=0.1,
             bargroupgap=0,
             xaxis_type='category',
-            barmode="stack",
+            barmode="stack",            
             margin=go.layout.Margin(l=0, r=35, t=0, b=0),
             plot_bgcolor="#31302F",
             font=dict(color="white"),
@@ -496,7 +531,7 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
     else: #routes
         result_max_occupancy_board_by_route_day=max_occupancy_board_by_route_day [ (route_condition3) & (direction_condition3) & (month_condition3) &  (datecondtition3)  & (timecondition3)  & (weekday_condition3)  ].compute()
         if(len(result_max_occupancy_board_by_route_day.index) ==0) :return {}
-        fig2 = px.box(result_max_occupancy_board_by_route_day,labels={'route_id':'Routes','occupancy':'Max Occupancy'}, x="route_id", y="occupancy",color="route_id",)
+        fig2 = px.box(result_max_occupancy_board_by_route_day,labels={'route_id':'Routes','occupancy':'Max Daily Occupancy'}, x="route_id", y="occupancy",color="route_id",)
         fig2.update_layout(
             autosize=True,
             bargap=0.1,
