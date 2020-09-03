@@ -321,6 +321,12 @@ def update_map(start_date, end_date,  busroutes, months, directions,days,occupan
        # direction_condition= ((max_occupancy_board_by_trip_day['direction_desc']).isin(directions))    
         direction_condition2=((max_occupancy_board_by_stop_day['direction_desc']).isin(directions)) 
 
+    if months is None or len(months)==0:
+        month_condition2=True
+    else:
+        month_condition2=((max_occupancy_board_by_stop_day['month'].isin(months)))
+    
+
     if busroutes is None or len(busroutes)==0:
         #route_condition=(True)
         route_condition2=(True)
@@ -332,7 +338,7 @@ def update_map(start_date, end_date,  busroutes, months, directions,days,occupan
 
     #datecondtition=((max_occupancy_board_by_trip_day['date'] >= start_date) & (max_occupancy_board_by_trip_day['date'] <= end_date))
     datecondtition2 = ((max_occupancy_board_by_stop_day['date'] >= start_date) & (max_occupancy_board_by_stop_day['date'] <= end_date))
-    result_max_occupancy_board_by_stop_day=max_occupancy_board_by_stop_day [ (route_condition2) & (direction_condition2) & (datecondtition2)  & (timecondition2)  & (weekday_condition2)  ].groupby(['route_id','stop_id','stop_name','stop_lat','stop_lon']).occupancy.mean().reset_index().compute()
+    result_max_occupancy_board_by_stop_day=max_occupancy_board_by_stop_day [ (route_condition2) & (direction_condition2) & (month_condition2) &(datecondtition2)  & (timecondition2)  & (weekday_condition2)  ].groupby(['route_id','stop_id','stop_name','stop_lat','stop_lon']).occupancy.mean().reset_index().compute()
     result_max_occupancy_board_by_stop_day['MeanMaxOccupancy']=result_max_occupancy_board_by_stop_day['occupancy']
     fig = px.scatter_mapbox(result_max_occupancy_board_by_stop_day,
                                 lat="stop_lat",
@@ -398,6 +404,19 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
     timecondition = ((max_occupancy_board_by_trip_day['time_day_seconds']>starttime) & (max_occupancy_board_by_trip_day['time_day_seconds']<endtime))
     timecondition2 = ((max_occupancy_board_by_stop_day['time_day_seconds']>starttime) & (max_occupancy_board_by_stop_day['time_day_seconds']<endtime))
     timecondition3=((max_occupancy_board_by_route_day['time_day_seconds']>starttime) & (max_occupancy_board_by_route_day['time_day_seconds']<endtime))
+    
+    #month condition
+
+    if months is None or len(months)==0:
+        month_condition=True
+        month_condition2=True
+        month_condition3=True
+    else:
+        month_condition = ((max_occupancy_board_by_trip_day['month'].isin(months)))
+        month_condition2=((max_occupancy_board_by_stop_day['month'].isin(months)))
+        month_condition3=((max_occupancy_board_by_route_day['month'].isin(months)))
+ 
+    
     #direction condition
     if directions is None or len(directions)==0:
         direction_condition=(True)
@@ -421,7 +440,7 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
     datecondtition2 = ((max_occupancy_board_by_stop_day['date'] >= start_date) & (max_occupancy_board_by_stop_day['date'] <= end_date))
     datecondtition3 = ((max_occupancy_board_by_route_day['date'] >= start_date) & (max_occupancy_board_by_route_day['date'] <= end_date))
     if histogramtrip=='trips':
-        result_max_occupancy_board_by_trip_day = max_occupancy_board_by_trip_day [  (route_condition) & (direction_condition) & (datecondtition) & (timecondition) & (weekday_condition) ].compute().sort_values(['time_day_seconds'])
+        result_max_occupancy_board_by_trip_day = max_occupancy_board_by_trip_day [  (route_condition) & (direction_condition) & (datecondtition) & (month_condition) &(timecondition) & (weekday_condition) ].compute().sort_values(['time_day_seconds'])
         fig2 = px.box(result_max_occupancy_board_by_trip_day,labels={'trip_start_time':'Trips','occupancy':'Max Occupancy'}, x="trip_start_time", y="occupancy",color="route_id",)
         fig2.update_layout(
             autosize=True,
@@ -447,7 +466,7 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
         del result_max_occupancy_board_by_trip_day        
         #return  fig2
     elif histogramtrip=='stops':
-        result_max_occupancy_board_by_stop_day=max_occupancy_board_by_stop_day [ (route_condition2) & (direction_condition2) & (datecondtition2)  & (timecondition2)  & (weekday_condition2)  ].compute()
+        result_max_occupancy_board_by_stop_day=max_occupancy_board_by_stop_day [ (route_condition2) & (direction_condition2) & (month_condition2) &  (datecondtition2)  & (timecondition2)  & (weekday_condition2)  ].compute()
         fig2 = px.box(result_max_occupancy_board_by_stop_day,labels={'stop_id':'Stops','occupancy':'Max Occupancy'}, x="stop_id", y="occupancy",color="route_id",)
         fig2.update_layout(
             autosize=True,
@@ -473,7 +492,7 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
         del result_max_occupancy_board_by_stop_day      
         #return  fig2
     else: #routes
-        result_max_occupancy_board_by_route_day=max_occupancy_board_by_route_day [ (route_condition3) & (direction_condition3) & (datecondtition3)  & (timecondition3)  & (weekday_condition3)  ].compute()
+        result_max_occupancy_board_by_route_day=max_occupancy_board_by_route_day [ (route_condition3) & (direction_condition3) & (month_condition3) &  (datecondtition3)  & (timecondition3)  & (weekday_condition3)  ].compute()
         fig2 = px.box(result_max_occupancy_board_by_route_day,labels={'route_id':'Routes','occupancy':'Max Occupancy'}, x="route_id", y="occupancy",color="route_id",)
         fig2.update_layout(
             autosize=True,
