@@ -441,6 +441,7 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
     datecondtition3 = ((max_occupancy_board_by_route_day['date'] >= start_date) & (max_occupancy_board_by_route_day['date'] <= end_date))
     if histogramtrip=='trips':
         result_max_occupancy_board_by_trip_day = max_occupancy_board_by_trip_day [  (route_condition) & (direction_condition) & (datecondtition) & (month_condition) &(timecondition) & (weekday_condition) ].compute().sort_values(['time_day_seconds'])
+        if(len(result_max_occupancy_board_by_trip_day.index) ==0) :return {}
         fig2 = px.box(result_max_occupancy_board_by_trip_day,labels={'trip_start_time':'Trips','occupancy':'Max Occupancy'}, x="trip_start_time", y="occupancy",color="route_id",)
         fig2.update_layout(
             autosize=True,
@@ -467,6 +468,7 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
         #return  fig2
     elif histogramtrip=='stops':
         result_max_occupancy_board_by_stop_day=max_occupancy_board_by_stop_day [ (route_condition2) & (direction_condition2) & (month_condition2) &  (datecondtition2)  & (timecondition2)  & (weekday_condition2)  ].compute()
+        if(len(result_max_occupancy_board_by_stop_day.index) ==0) :return {}
         fig2 = px.box(result_max_occupancy_board_by_stop_day,labels={'stop_id':'Stops','occupancy':'Max Occupancy'}, x="stop_id", y="occupancy",color="route_id",)
         fig2.update_layout(
             autosize=True,
@@ -493,6 +495,7 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
         #return  fig2
     else: #routes
         result_max_occupancy_board_by_route_day=max_occupancy_board_by_route_day [ (route_condition3) & (direction_condition3) & (month_condition3) &  (datecondtition3)  & (timecondition3)  & (weekday_condition3)  ].compute()
+        if(len(result_max_occupancy_board_by_route_day.index) ==0) :return {}
         fig2 = px.box(result_max_occupancy_board_by_route_day,labels={'route_id':'Routes','occupancy':'Max Occupancy'}, x="route_id", y="occupancy",color="route_id",)
         fig2.update_layout(
             autosize=True,
