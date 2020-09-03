@@ -1,37 +1,36 @@
-= transit-occupancy-dashboard
+# Transit-occupancy-dashboard
 
-if you do not have this environment then create it. To run just follow the instructions based on docker as described  below.
+If you do not have this environment then create it. To run just follow the instructions based on docker as described  below.
 
-== Running app with Docker
----
+## Running app with Docker
+
+```
 docker build -t wegodash .
 docker run --memory='4g' --rm -p 8080:8080 wegodash
----
+```
 
 Note we give 4 gigabyte to this.
 
-
-= Development instructions
+# Development instructions
 
 Check your environments.
 
-[source,bash]
-----
+```bash
 conda env list
-----
+```
+
 Remove as needed.
 
-[source,bash]
-----
+```bash
 conda --yes remove --name transit_dashboard --all
-----
+```
 Create and activate the new environment.
 
-[source,bash]
-----
+
+```bash
 conda create --name transit_dashboard python=3.8
 conda activate transit_dashboard
-----
+```
 
 Add the packages into the new environment.
 It is tempting [to use pip](
@@ -39,31 +38,27 @@ https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environme
 It may be that some packages are not available in the main conda repositories for your platform.
 In that case you may need to add additional channels.
 
-[source,bash]
-----
+```bash
 # conda config --prepend channels conda-forge
 conda config --set channel_priority false
-
 conda install --yes --file requirements.txt
-----
+```
 
-== converting between basic python and notebooks
+## converting between basic python and notebooks
 
 use ipynb-py-convert
 
-[source,bash]
-----
+```bash
 conda --yes install ipynb-py-convert
-----
+```
 
-== Running app in development environment
+## Running app in development environment
 
-[source,bash]
-----
+```
 conda activate transit_dashboard
-python app.py
-----
-
+cd app
+python transitapp.py
+```
 
 
 
