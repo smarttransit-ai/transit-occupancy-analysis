@@ -1,19 +1,28 @@
-runtime: python38
-instance_class: B8
-
-basic_scaling:
-  max_instances: 11
-  idle_timeout: 10m
- 
+runtime: custom
+api_version: '1.0'
+env: flexible
+threadsafe: true
 handlers:
-- url: /.*
-  script: auto
-  secure: always
-  redirect_http_response_code: 301
-
-
-entrypoint: gunicorn -b 0.0.0.0:8080 transitapp:server --timeout 800
-
-
-
-
+  - url: /.*
+    script: auto
+    secure: always
+    redirect_http_response_code: '301'
+manual_scaling:
+  instances: 1
+network: {}
+resources:
+  cpu: 2
+  memory_gb: 4
+  disk_size_gb: 20
+liveness_check:
+  initial_delay_sec: 300
+  check_interval_sec: 30
+  timeout_sec: 4
+  failure_threshold: 4
+  success_threshold: 2
+readiness_check:
+  check_interval_sec: 5
+  timeout_sec: 4
+  failure_threshold: 2
+  success_threshold: 2
+  app_start_timeout_sec: 300
