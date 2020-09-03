@@ -1,8 +1,17 @@
 = transit-occupancy-dashboard
 
-if you do not have this environment then create it.
+if you do not have this environment then create it. To run just follow the instructions based on docker as described  below.
 
-== One time setup
+== Running app with Docker
+---
+docker build -t wegodash .
+docker run --memory='4g' --rm -p 8080:8080 wegodash
+---
+
+Note we give 4 gigabyte to this.
+
+
+= Development instructions
 
 Check your environments.
 
@@ -47,13 +56,14 @@ use ipynb-py-convert
 conda --yes install ipynb-py-convert
 ----
 
-== Running app
+== Running app in development environment
 
 [source,bash]
 ----
 conda activate transit_dashboard
 python app.py
 ----
+
 
 
 
