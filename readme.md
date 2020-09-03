@@ -9,7 +9,7 @@ docker build -t wegodash .
 docker run --memory='4g' --rm -p 8080:8080 wegodash
 ```
 
-Note we give 4 gigabyte to this.
+Note we give 4 gigabyte to this. Make sure your docker dashboard has enough resources enabled. 
 
 Go to your browser and open http://127.0.0.1:8080. It should look like below.
 
