@@ -11,6 +11,15 @@ docker run --memory='4g' --rm -p 8080:8080 wegodash
 
 Note we give 4 gigabyte to this.
 
+Go to your browser and open http://127.0.0.1:8080. It should look like below.
+
+<img src="docs/dashboard.png"
+     alt="Dashboard image"
+     style="float: left; margin-right: 0px;" />
+
+
+
+
 # Development instructions
 
 Check your environments.
