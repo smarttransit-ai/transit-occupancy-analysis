@@ -1,7 +1,8 @@
 gunicorn>=19.7.1
 plotly>=4.9.0
 dash>=1.14
-dask
+dask[complete]
+fastparquet
 dash-renderer>=1.6.0
 dash-html-components>=1.0.3
 dash-core-components>=1.10.2
