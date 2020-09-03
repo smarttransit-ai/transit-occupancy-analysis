@@ -16,8 +16,9 @@ from datetime import datetime as dt
 from datetime import time as tt
 import os,sys,resource
 import dask.dataframe as dd
+from fastparquet import ParquetFile
  
-resource.setrlimit(resource.RLIMIT_AS, (1e9, 1e9))  
+#resource.setrlimit(resource.RLIMIT_AS, (1e9, 1e9))  
 # Data preparation Code. Uncomment as required
 
 # df = dataextract.decompress_pickle('nashville_bus_occupancy_dashboard-dubey.pbz2')
@@ -28,9 +29,9 @@ resource.setrlimit(resource.RLIMIT_AS, (1e9, 1e9))
 # custom= {'occupancy': 'max', 'board_count': 'sum','time_day_seconds':'first','trip_start_time':'first','dayofweek':'first'}
 # max_occupancy_board_by_stop_day=sdf.groupby(['route_id','trip_id','stop_id','direction_desc','stop_name','stop_lat','stop_lon','month','year','date']).agg(custom).reset_index()
 # max_occupancy_board_by_route_day=sdf.groupby(['route_id','direction_desc','month','year','date']).agg(custom).reset_index()
-# max_occupancy_board_by_trip_day.to_parquet('data/nashville/max_occupancy_board_by_trip_day.parquet', engine='pyarrow')
-# max_occupancy_board_by_stop_day.to_parquet('data/nashville/max_occupancy_board_by_stop_day.parquet', engine='pyarrow')
-# max_occupancy_board_by_route_day.to_parquet('data/nashville/max_occupancy_board_by_route_day.parquet', engine='pyarrow')
+# max_occupancy_board_by_trip_day.to_parquet('data/nashville/max_occupancy_board_by_trip_day.parquet', engine='fastparquet')
+# max_occupancy_board_by_stop_day.to_parquet('data/nashville/max_occupancy_board_by_stop_day.parquet', engine='fastparquet')
+# max_occupancy_board_by_route_day.to_parquet('data/nashville/max_occupancy_board_by_route_day.parquet', engine='fastparquet')
 # print(max_occupancy_board_by_trip_day.head())
 # print(max_occupancy_board_by_trip_day.dtypes)
 # print(max_occupancy_board_by_trip_day.datetime.min().compute())
@@ -49,10 +50,13 @@ px.set_mapbox_access_token(mapbox_access_token)
 
 
 #load all required dataframes as dask
-#sdf = dd.read_parquet('data/nashville/occupancy.parquet', engine='pyarrow')
-max_occupancy_board_by_trip_day=dd.read_parquet('data/nashville/max_occupancy_board_by_trip_day.parquet', engine='pyarrow')
-max_occupancy_board_by_stop_day=dd.read_parquet('data/nashville/max_occupancy_board_by_stop_day.parquet', engine='pyarrow')
-max_occupancy_board_by_route_day=dd.read_parquet('data/nashville/max_occupancy_board_by_route_day.parquet', engine='pyarrow')
+#sdf = dd.read_parquet('data/nashville/occupancy.parquet', engine='fastparquet')
+
+
+
+max_occupancy_board_by_trip_day=dd.read_parquet('data/nashville/max_occupancy_board_by_trip_day.parquet', engine='fastparquet')
+max_occupancy_board_by_stop_day=dd.read_parquet('data/nashville/max_occupancy_board_by_stop_day.parquet', engine='fastparquet')
+max_occupancy_board_by_route_day=dd.read_parquet('data/nashville/max_occupancy_board_by_route_day.parquet', engine='fastparquet')
 
 
 #find all routes and directions.
@@ -62,6 +66,9 @@ print(enddate,startdate)
 routes=max_occupancy_board_by_trip_day.route_id.unique().compute() 
 directions=max_occupancy_board_by_trip_day.direction_desc.unique().compute()
 
+del max_occupancy_board_by_trip_day
+del max_occupancy_board_by_stop_day
+del max_occupancy_board_by_route_day
 
 #setup the app frameworks and main layout
 # Layout of Dash App
@@ -258,13 +265,7 @@ app.layout = html.Div(
     ]
 )
 
-starttime=tt(8,59,59)    
-endtime=tt(17,59,59)    
-#endtime=np.datetime64(endtime)
-print(endtime)
-print(max_occupancy_board_by_trip_day.head())
-st=dt(2020, 2, 1)
-stn=np.datetime64(st)
+
 def return_seconds(time):
     return time.hour*3600+time.minute*60+time.second
 
@@ -291,6 +292,9 @@ def return_seconds(time):
 )
 def update_map(start_date, end_date,  busroutes, months, directions,days,occupancykind,timerange):
     #setup time condition
+    #max_occupancy_board_by_trip_day=dd.read_parquet('data/nashville/max_occupancy_board_by_trip_day.parquet', engine='fastparquet')
+    max_occupancy_board_by_stop_day=dd.read_parquet('data/nashville/max_occupancy_board_by_stop_day.parquet', engine='fastparquet')
+    #max_occupancy_board_by_route_day=dd.read_parquet('data/nashville/max_occupancy_board_by_route_day.parquet', engine='fastparquet')
     timemin,timemax=timerange        
     hourmax=int(timemax)
     hourmin=int(timemin)
@@ -302,31 +306,31 @@ def update_map(start_date, end_date,  busroutes, months, directions,days,occupan
     minutesmin=int(60*(timemin-hourmin))
     starttime= return_seconds(tt(hourmin,minutesmin,0))
     if days is None or len(days)==0:
-        weekday_condition=(True)
-        weekday_condition2=weekday_condition
+        weekday_condition2=(True)
+        
     else:
-        weekday_condition= ((max_occupancy_board_by_trip_day['dayofweek']).isin(days))
+        #weekday_condition= ((max_occupancy_board_by_trip_day['dayofweek']).isin(days))
         weekday_condition2 = ((max_occupancy_board_by_stop_day['dayofweek']).isin(days))
-    timecondition = ((max_occupancy_board_by_trip_day['time_day_seconds']>starttime) & (max_occupancy_board_by_trip_day['time_day_seconds']<endtime))
+    #timecondition = ((max_occupancy_board_by_trip_day['time_day_seconds']>starttime) & (max_occupancy_board_by_trip_day['time_day_seconds']<endtime))
     timecondition2 = ((max_occupancy_board_by_stop_day['time_day_seconds']>starttime) & (max_occupancy_board_by_stop_day['time_day_seconds']<endtime))
     #direction condition
     if directions is None or len(directions)==0:
-        direction_condition=(True)
-        direction_condition2=direction_condition
+       # direction_condition=(True)
+        direction_condition2=(True)
     else:
-        direction_condition= ((max_occupancy_board_by_trip_day['direction_desc']).isin(directions))    
+       # direction_condition= ((max_occupancy_board_by_trip_day['direction_desc']).isin(directions))    
         direction_condition2=((max_occupancy_board_by_stop_day['direction_desc']).isin(directions)) 
 
     if busroutes is None or len(busroutes)==0:
-        route_condition=(True)
-        route_condition2=route_condition
+        #route_condition=(True)
+        route_condition2=(True)
     else:
         #print(busroutes)
         #print (max_occupancy_board_by_trip_day['route_id'].dtype)
-        route_condition  = ((max_occupancy_board_by_trip_day['route_id']).isin(busroutes))
+       # route_condition  = ((max_occupancy_board_by_trip_day['route_id']).isin(busroutes))
         route_condition2 = ((max_occupancy_board_by_stop_day['route_id']).isin(busroutes))
 
-    datecondtition=((max_occupancy_board_by_trip_day['date'] >= start_date) & (max_occupancy_board_by_trip_day['date'] <= end_date))
+    #datecondtition=((max_occupancy_board_by_trip_day['date'] >= start_date) & (max_occupancy_board_by_trip_day['date'] <= end_date))
     datecondtition2 = ((max_occupancy_board_by_stop_day['date'] >= start_date) & (max_occupancy_board_by_stop_day['date'] <= end_date))
     result_max_occupancy_board_by_stop_day=max_occupancy_board_by_stop_day [ (route_condition2) & (direction_condition2) & (datecondtition2)  & (timecondition2)  & (weekday_condition2)  ].groupby(['route_id','stop_id','stop_name','stop_lat','stop_lon']).occupancy.mean().reset_index().compute()
     result_max_occupancy_board_by_stop_day['MeanMaxOccupancy']=result_max_occupancy_board_by_stop_day['occupancy']
@@ -350,6 +354,8 @@ def update_map(start_date, end_date,  busroutes, months, directions,days,occupan
         #title_text= title,
         hoverlabel=dict(font=dict(size=12))
     )
+    del result_max_occupancy_board_by_stop_day
+    del max_occupancy_board_by_stop_day
     return  fig
 
 
@@ -368,6 +374,9 @@ def update_map(start_date, end_date,  busroutes, months, directions,days,occupan
 )
 def update_histogram(start_date, end_date,  busroutes, months, directions,days,occupancykind,timerange,histogramtrip):
     #setup time condition
+    max_occupancy_board_by_trip_day=dd.read_parquet('data/nashville/max_occupancy_board_by_trip_day.parquet', engine='fastparquet')
+    max_occupancy_board_by_stop_day=dd.read_parquet('data/nashville/max_occupancy_board_by_stop_day.parquet', engine='fastparquet')
+    max_occupancy_board_by_route_day=dd.read_parquet('data/nashville/max_occupancy_board_by_route_day.parquet', engine='fastparquet')
     timemin,timemax=timerange        
     hourmax=int(timemax)
     hourmin=int(timemin)
@@ -434,8 +443,9 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
             ),
             xaxis_tickangle=-45,
             hoverlabel=dict(font=dict(size=12))
-        )        
-        return  fig2
+        )
+        del result_max_occupancy_board_by_trip_day        
+        #return  fig2
     elif histogramtrip=='stops':
         result_max_occupancy_board_by_stop_day=max_occupancy_board_by_stop_day [ (route_condition2) & (direction_condition2) & (datecondtition2)  & (timecondition2)  & (weekday_condition2)  ].compute()
         fig2 = px.box(result_max_occupancy_board_by_stop_day,labels={'stop_id':'Stops','occupancy':'Max Occupancy'}, x="stop_id", y="occupancy",color="route_id",)
@@ -459,8 +469,9 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
             ),
             xaxis_tickangle=-45,
             hoverlabel=dict(font=dict(size=12))
-        )        
-        return  fig2
+        )  
+        del result_max_occupancy_board_by_stop_day      
+        #return  fig2
     else: #routes
         result_max_occupancy_board_by_route_day=max_occupancy_board_by_route_day [ (route_condition3) & (direction_condition3) & (datecondtition3)  & (timecondition3)  & (weekday_condition3)  ].compute()
         fig2 = px.box(result_max_occupancy_board_by_route_day,labels={'route_id':'Routes','occupancy':'Max Occupancy'}, x="route_id", y="occupancy",color="route_id",)
@@ -484,8 +495,13 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
             ),
             xaxis_tickangle=-45,
             hoverlabel=dict(font=dict(size=12))
-        )        
-        return  fig2
+        )
+        del result_max_occupancy_board_by_route_day        
+        
+    del max_occupancy_board_by_trip_day
+    del max_occupancy_board_by_stop_day
+    del max_occupancy_board_by_route_day
+    return  fig2
 
 
 # %%
