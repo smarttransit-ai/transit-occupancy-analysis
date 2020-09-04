@@ -240,7 +240,7 @@ app.layout = html.Div(
                 html.Div(
                     className="eight columns div-for-charts bg-grey",
                     children=[
-                        dcc.Graph(id="map-graph"),
+                        dcc.Loading(id="loading-icon1",children=[dcc.Graph(id="map-graph"),],type='default'),
                         #html.Div(className="div-for-dropdown", children=[html.P(id='heatmap-text',style={'text-align': 'center'})]),     
                         html.Div(children=[dcc.RadioItems( id='histogram-trip',
                                           options=[                                             
@@ -250,7 +250,7 @@ app.layout = html.Div(
                                         labelStyle={'display': 'inline-block'} ,     
                                         value='routes',style={'text-align': 'center'},
                                     )]),                  
-                        dcc.Graph(id="histogram"),
+                        dcc.Loading(id="loading-icon2", children=[dcc.Graph(id="histogram"),],type='default'),
                         dcc.Markdown(id="warning-text",children=['# Please select one route for showing stop information.'],style={'text-align': 'center','display':'none'})
                     ],
                 ),
