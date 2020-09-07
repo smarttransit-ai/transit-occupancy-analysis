@@ -14,8 +14,8 @@ from plotly import graph_objs as go
 from plotly.graph_objs import *
 from datetime import datetime as dt
 from datetime import time as tt
-import swifter
-import dateparser
+#import swifter
+#import dateparser
 import os,sys,resource
 import dask.dataframe as dd
 from fastparquet import ParquetFile
