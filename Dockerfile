@@ -8,4 +8,4 @@ COPY ./app /transit-occupancy-dashboard
 
 WORKDIR /transit-occupancy-dashboard
 
-CMD exec gunicorn -b :8080 transitapp:server --timeout 1800
+CMD exec gunicorn -b :8080 wegoapp:server --timeout 1800
