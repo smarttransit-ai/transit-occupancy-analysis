@@ -31,24 +31,39 @@ a {
 .text-padding{
   padding: 5px;
 }
+.wrapper {
+  display: grid;
+  grid-template-rows: repeat(3, 200px);
+  grid-gap: 10px;
+  grid-auto-flow: column;
+  grid-auto-columns: 300px 100px;
+}
+.textright{
+  text-align:right;
+}
+.textleft{
+  text-align:left;
+}
+
 /* Graph Layout ––––––––––––––––––––––––––––––––––––––––––––––––––*/
 .div-for-charts{
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 94vh;
   width: 100%;
 }
 #histogram {
-  flex-grow: 1 
+  flex-grow: 3 
 }
 #map-graph {
   flex-grow: 1 
 }
-#footer {
-  position:absolute;
-  bottom:0;
-  width:100%;
-  height:60px;
+#footer {  
+  width:100vw;
+  background-color: white;
+  color:black;
+  height:auto;
+  text-align: center;
 }
 .mapboxgl-canvas, .mapboxgl-map {
   min-width: 100%;
@@ -59,8 +74,8 @@ a {
   padding-top: 20px;
 }
 .div-for-dropdown {
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding-top: 8px;
+  padding-bottom: 0px;
 }
 .div-for-slider {
   width: 97%;
@@ -152,10 +167,14 @@ a {
 }
 
 /* For Mobile Phones and small screens ––––––––––––––––––––––––––––––––––––––––––––––––––*/
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 900px) {
   .four, .eight {
       min-width: 100%;
  }
+ .textright,.textleft{
+  text-align:center;
+}
+
   h1, h2, h3, p {
       text-align: center;
  }
