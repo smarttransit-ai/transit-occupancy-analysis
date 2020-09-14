@@ -27,3 +27,11 @@ def main():
     print("time elapsed:", end - start)
 
     parallel_result.to_csv('test_apc_data_processing.csv')
+
+
+# https://github.com/jmcarpenter2/swifter
+
+
+df['responsetime'] = df.swifter.set_npartitions(48).apply(lambda x: response(x.alarmDateTime, x.arrivalDateTime), axis=1)
+
+# You can remove the set_npartitions and it will scale to your machine.

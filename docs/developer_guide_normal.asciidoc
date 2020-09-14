@@ -1,0 +1,38 @@
+:title-separator: {sp}|
+= Developer's Guide | Developing the Occupancy Dashboard
+:doctype: article
+:revnumber: 1.0
+:revdate: 2020-09-02
+:revremark: The first incarnation of {doctitle}
+:version-label!:
+:description: Notes for a developer about decisions made and instructions.
+:keywords: dashboard carta bus dash plotly
+:sectnums:
+:toc:
+
+This guide is to help developer's remember or learn
+the normal workflow for this project.
+For detailed instructions see
+link:./developer_guide_natural.asciidoc[The Natural Developer's Guide].
+
+== converting between basic python and notebooks
+
+use ipynb-py-convert
+
+[source,bash]
+----
+conda --yes install ipynb-py-convert
+----
+
+== Running app
+
+[source,bash]
+----
+conda activate transit_dashboard
+python app.py
+----
+
+
+
+
+

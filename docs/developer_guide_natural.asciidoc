@@ -10,7 +10,10 @@
 :sectnums:
 :toc:
 
-This guide is to help developer's remember or learn how to work with this project.
+This guide is to help developer's remember or learn
+the natural workflow for this project.
+For detailed instructions see
+link:./developer_guide_normal.asciidoc[The Normal Developer's Guide].
 
 == One time setup
 
@@ -65,6 +68,8 @@ conda --yes install ipynb-py-convert
 conda activate transit_dashboard
 python app.py
 ----
+
+
 
 
 
