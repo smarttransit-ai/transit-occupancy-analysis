@@ -27,11 +27,10 @@ Note we give 4 gigabyte to this. Make sure your docker dashboard has enough reso
 
 Go to your browser and open http://127.0.0.1:8080. It should look like below.
 
-<img src="docs/dashboard.png"
-     alt="Dashboard image"
-     style="float: left; margin-right: 0px;" />
+image::docs/dashboard.png[Dashboard image]
 
-# Development instructions
+
+== Development instructions
 Check your environments.
 
 [source,bash]
