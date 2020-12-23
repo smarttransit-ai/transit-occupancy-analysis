@@ -1,6 +1,8 @@
 # APC Processing
 
-## 1. Setup
+The following notebook provides code to clean the APC data and merge with the GTFS data across time. For most people who are interested in analysis, you can directly jump to step 2 and work with the cleaned up data.
+
+## 1. Setup [skip if you are only interested in merged data]
 
 * download data.zip and unzip in current directory (raw APC and GTFS data): https://vanderbilt365.sharepoint.com/:u:/r/sites/TransitHub/Shared%20Documents/General/datasets/carta-occupancy/app-data/data.zip?csf=1&web=1&e=qykqZ5
 * download cartaapc_dashboard.csv.zip and place into output/ directory: https://vanderbilt365.sharepoint.com/:u:/r/sites/TransitHub/Shared%20Documents/General/datasets/carta-occupancy/app-data/cartaapc_dashboard.csv.zip?csf=1&web=1&e=MoYHmi
@@ -17,6 +19,8 @@ the data/ directory holds all raw data (APC and GTFS) required by carta_apc_data
 output/ directory is where carta_apc_dataprep.ipynb writes the processed files.
 
 ## 2. Data schema for processed dataset (cartaapc_dashboard.csv)
+
+Note that the cleaned data can be downloaded directly from: https://vanderbilt365.sharepoint.com/:u:/r/sites/TransitHub/Shared%20Documents/General/datasets/carta-occupancy/app-data/cartaapc_dashboard.csv.zip?csf=1&web=1&e=MoYHmi
 
 | Field | Source | Description |
 |:-----:|:------:|:-----------:|
@@ -42,4 +46,9 @@ output/ directory is where carta_apc_dataprep.ipynb writes the processed files.
 
 
 ## 3. Reference documentation
+
+If you would like to download just the GTFS data without also getting the raw apc data, the
+CARTA GTFS schedules are available at: https://vanderbilt365.sharepoint.com/:u:/s/TransitHub/EU1j12E71LpNo0qRQwn9Sk4BDUdqG8Y-RUJsM-4AbaHZEA?e=Cl2nzC
+
+
 Note that a good reference for GTFS is: https://developers.google.com/transit/gtfs/reference. A good starting python package for gtfs is https://pypi.org/project/gtfs-functions/
