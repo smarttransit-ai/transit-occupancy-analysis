@@ -42,4 +42,4 @@ output/ directory is where carta_apc_dataprep.ipynb writes the processed files.
 
 
 ## 3. Reference documentation
-Note that a good reference for GTFS is: https://developers.google.com/transit/gtfs/reference
+Note that a good reference for GTFS is: https://developers.google.com/transit/gtfs/reference. A good starting python package for gtfs is https://pypi.org/project/gtfs-functions/
