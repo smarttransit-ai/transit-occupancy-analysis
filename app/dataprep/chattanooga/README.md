@@ -7,6 +7,9 @@
 
 Note that cartaapc_dashboard.csv is the cleaned apc data for CARTA from Jan 1, 2019 to Jun 1, 2020
 
+If you would like to download just the GTFS data without also getting the raw apc data, the
+CARTA GTFS schedules are available at: https://vanderbilt365.sharepoint.com/:u:/s/TransitHub/EU1j12E71LpNo0qRQwn9Sk4BDUdqG8Y-RUJsM-4AbaHZEA?e=Cl2nzC
+
 carta_apc_dataprep.ipynb is the notebook for cleaning the raw APC data and merging with GTFS. 
 
 Notes:
