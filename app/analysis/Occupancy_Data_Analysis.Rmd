@@ -1,0 +1,187 @@
+---
+title: "Occupancy  Data Analysis"
+author: "Juan Martínez"
+date: "12/28/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, error = FALSE)
+library(knitr)
+library(dplyr)
+library(tidyr)
+library(STRbook)
+library(tidyverse)
+library(caret)
+library(knitcitations)
+library(htmltools)
+library(htmlwidgets)
+library(knitLatex)
+library(sparkline)
+library(tibble)
+library(plotly)
+library(wesanderson)
+library(kableExtra)
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(likelihood)
+library(ggmap)
+library(ggnetwork)
+library(anytime)
+library(lubridate)
+library(tibble)
+library(data.table)
+library(rgdal)
+library(raster)
+library(sp)
+library(splines)
+library(mlbench)
+library(ggfortify)
+library(RColorBrewer)
+library(sf)
+library(maps)
+library(leaflet)
+library(cowplot)
+library(compare)
+library(pscl)
+library(MASS)
+library(glmmTMB)
+library(mgcv)
+library(lmtest)
+library(readr)
+```
+
+# Introduction
+
+In this document we run some analysis about occupancy. We group the information by `route_id`, `stop_id`, `date`, and hour of the day. Then, we calculate the median, $75^{th}$ and $90^{th}$ percentiles of the "grouped" occupancies. These values are considered as thresholds that help us identify trips with anomalous occupancy values.
+
+```{r datainput, echo = T}
+
+Weekdays_Occupancy <- read_csv("Data/Chattanooga/Weekdays_Occupancy_Analysis_by_trip_id.csv")
+
+head(Weekdays_Occupancy)
+
+```
+
+# Filtering by `direction_id`
+
+## `direction_id == 1`
+
+```{r}
+
+carta1 <- Weekdays_Occupancy %>%
+  filter(direction_id == 1)
+
+```
+
+### Median Occupancy
+
+Finding the trips whose occupancy is higher than the median occupancy per route per date:
+
+```{r}
+route_median1 <- carta1 %>%
+  group_by(route_id, stop_id, date = date(date_time), hour = hour(date_time)) %>%
+  mutate(route_median_occup = median(occupancy)) %>%
+  filter(occupancy > route_median_occup) %>%
+  summarise(route_id, trip_id, date, hour, stop_id, occupancy, route_median_occup)
+
+head(route_median1)
+
+```
+
+
+Exploratory data analysis:
+
+```{r}
+route_median1_hour <- route_median1 %>%
+  group_by(route_id, stop_id, trip_id, hour) %>%
+  mutate(z_score = (occupancy - mean(occupancy))/sd(occupancy)) %>%
+  summarise(occupancy, mean_occupancy = mean(occupancy), z_score)
+
+
+head(route_median1_hour)
+```
+
+
+### $75^{th}$ Percentile
+
+
+```{r}
+route_percent75_1 <- carta1 %>%
+  group_by(route_id, stop_id, date = date(date_time), hour = hour(date_time)) %>%
+  mutate(route_percent75_occup = quantile(occupancy, prob = 0.75)) %>%
+  filter(occupancy > route_percent75_occup) %>%
+  summarise(route_id, trip_id, hour, stop_id, occupancy, route_percent75_occup)
+
+head(route_percent75_1)
+```
+
+Z-scores:
+
+```{r}
+route_percent75_1_hour <- route_percent75_1 %>%
+  group_by(route_id, stop_id, trip_id, hour) %>%
+  mutate(z_score = (occupancy - mean(occupancy))/sd(occupancy)) %>%
+  summarise(occupancy, mean_occupancy = mean(occupancy), z_score)
+
+
+head(route_percent75_1_hour)
+```
+
+
+
+### $90^{th}$ Percentile
+
+## `direction_id == 0`
+
+```{r}
+
+carta0 <- Weekdays_Occupancy %>%
+  filter(direction_id == 0)
+
+```
+
+
+### Median Occupancy
+
+Finding the trips whose occupancy is higher than the median occupancy per route per date:
+
+```{r}
+route_median0 <- carta0 %>%
+  group_by(route_id, stop_id, date = date(date_time), hour = hour(date_time)) %>%
+  mutate(route_median_occup = median(occupancy)) %>%
+  filter(occupancy > route_median_occup) %>%
+  summarise(route_id, trip_id, date, hour, stop_id, occupancy, route_median_occup)
+
+head(route_median0)
+
+```
+
+# Descriptive data analysis
+
+
+```{r desc1, echo = T}
+
+Weekdays_median_anomaly <- Weekdays_Occupancy %>%
+  summarise(trip_id, stop_id, route_id, occupancy, date_time, Mean_trip, Median_trip)
+
+head(Weekdays_median_anomaly)
+
+```
+
+## ti 
+
+```{r desc2, echo = T}
+# rm(Weekdays_Occupancy)
+
+Weekdays_median_anomaly_stop_date <- Weekdays_median_anomaly %>%
+  mutate(date = date(date_time),
+         hour = hour(date_time)) %>%
+  group_by(route_id, stop_id, date, hour) %>%
+  filter(occupancy > Median_trip) %>%
+  summarise(occupancy, Median_trip, stop_id)
+
+head(Weekdays_median_anomaly_stop_date)
+```
+
