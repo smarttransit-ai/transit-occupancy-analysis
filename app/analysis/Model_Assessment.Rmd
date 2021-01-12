@@ -1,0 +1,735 @@
+---
+title: "Model Assessment"
+author: "Juan Martínez"
+date: "12/22/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, error = FALSE)
+library(knitr)
+library(dplyr)
+library(tidyr)
+library(STRbook)
+library(tidyverse)
+library(caret)
+library(knitcitations)
+library(knitLatex)
+library(ISLR)
+library(boot)
+library(tibble)
+library(wesanderson)
+library(kableExtra)
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(likelihood)
+library(anytime)
+library(lubridate)
+library(tibble)
+library(data.table)
+library(splines)
+library(mlbench)
+library(ggfortify)
+library(RColorBrewer)
+library(leaflet)
+library(cowplot)
+library(compare)
+library(pscl)
+library(MASS)
+library(glmmTMB)
+library(mgcv)
+library(lmtest)
+
+```
+
+# Introduction
+
+We start by importing the data set. The file source is `cartaapc_dashboard.csv`. Then, we convert the character variables into factor variables:
+
+```{r hists, echo = T, fig.width=10, fig.height=8}
+
+carta <- read_csv("Data/Chattanooga/cartaapc_dashboard.csv")
+
+head(carta)
+```
+
+
+Given the size of the `carta` `DateFrame`, we divide the data in two halves:
+
+- `carta1`: `direction_id == 1`
+- `carta0`: `direction_id == 0`
+
+After that, the main `DateFrame` is removed (or erased) to have more space available:
+
+```{r vartime, echo = T, eval = F}
+
+carta1 <- carta %>%
+  filter(direction_id == 1) %>%
+  mutate(Hour = lubridate::hour(arrival_time),
+         Day = factor(wday(date),
+                      levels = c("1","2", "3", "4", "5","6" , "7"),
+                      labels = c("Sunday","Monday","Tuesday", 
+                                 "Wednesday","Thursday", "Friday",
+                                 "Saturday"))) %>%
+  summarize(trip_id, arrival_time, stop_id, stop_sequence, 
+            stop_lat, stop_lon, route_id, board_count,
+            alight_count, occupancy, date, service_period,
+            trip_start_time, Day)
+  
+head(carta1)
+write.csv(carta1, "carta1.csv", row.names = F)
+
+rm(carta)
+```
+
+## Data Partition Training Data
+
+The data has a hierchical order:
+
+- routes
+  * trips
+  
+Thus, we need to get information keeping this in mind:
+
+```{r carta1, echo = T}
+
+carta1_routes <- unique(carta1$route_id)
+
+route1_4 <- carta1 %>%
+  filter(route_id == carta1_routes[10]) %>%
+  summarize(trip_id, arrival_time, stop_id, stop_sequence, 
+            stop_lat, stop_lon, route_id, board_count,
+            alight_count, occupancy, date, trip_start_time, Day)
+
+rm(carta1)
+head(route1_4)
+
+route1_4$trip_id <- factor(route1_4$trip_id)
+route1_4$route_id <- factor(route1_4$route_id)
+
+carta1_trips_id_route_4 <- route1_4 %>%
+  summarise(Uniq_trips = unique(trip_id))
+
+carta1_stop_id_route_4 <- route1_4 %>%
+  summarise(Uniq_stops = unique(stop_id))
+
+
+```
+
+
+The following function (`data_for_reg_board()`) extracts and converts the number of board counts (`board_count`) and hour of the day (`Hour_f`) per bus stop (`stop_id`) per route `route_id`:
+
+
+```{r SunDatTrain, echo = T, fig.width=10, fig.height=8}
+
+#----------------------------------------------------------------------
+# stop_id:
+#----------------------------------------------------------------------
+
+data_for_reg_occupancy <- function(Da, st, Dat){
+  Data_reg <- Dat %>%
+    filter(Day %in% Da, stop_id == st) %>%
+    mutate(Hour = hour(arrival_time),
+           Hour_f = as.factor(Hour)) %>%
+    group_by(Hour) %>%
+    summarise(occupancy, Hour_f, trip_id)
+  
+   Data_reg <- Data_reg[ , -c(1)]
+   
+   neg_occup <- which((Data_reg$occupancy < 0) == T, arr.ind = T)
+  
+   Data_reg$occupancy[neg_occup] = 0
+
+  return(Data_reg)
+}
+
+zero_hour_check <- function(dat){
+  zero_hour <- which((dat$Hour_f == 0) == T, arr.ind = T)
+  Data_reg <- dat[-c(zero_hour),]
+  return(Data_reg)
+}
+
+weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+weekends <- c("Saturday", "Sunday")
+
+route1_4_stop_1919_week <- data_for_reg_occupancy(weekdays,
+                                                  carta1_stop_id_route_4$Uniq_stops[25],
+                                                  route1_4)
+
+#----------------------------------------------------------------------
+# Data partition: 70% and 30%
+
+train_prop = 0.7
+#----------------------------------------------------------------------
+# Training Data: 
+#----------------------------------------------------------------------
+
+
+get_set <- function(prop, Dat, set){
+  set.seed(123)
+  len = dim(Dat)[1]
+  train_ind = sample(len, ceiling(len*prop))
+  
+  if(set == "train"){
+    data_train = Dat[train_ind, ]
+    return(data_train)
+  }
+  else{
+    data_test = Dat[-train_ind, ]
+    return(data_test)
+  }
+}
+
+
+#----------------------------------------------------------------------
+# Training Data: 
+#----------------------------------------------------------------------
+
+route1_4_stop_1919_week_train <- get_set(0.7, route1_4_stop_1919_week, "train")
+
+#----------------------------------------------------------------------
+# Testing Data: 
+#----------------------------------------------------------------------
+
+route1_4_stop_1919_week_test <- get_set(0.7, route1_4_stop_1919_week, "test")
+#----------------------------------------------------------------------
+
+```
+
+# Overall Occupancy:
+
+- Day of the week
+-
+```{r}
+
+
+route1_4_stop_1919_week_train %>%
+  group_by(Hour_f) %>%
+  mutate(lambda = mean(occupancy)) %>%
+  ggplot(aes(x = Hour_f, y = occupancy)) +
+  geom_point(alpha = 0.01, color = 'red') +
+  geom_point(aes(x = Hour_f, y = lambda),
+             alpha = 0.6, color = "red") +
+  xlab("Hour of the day") +
+  ylab("Occupancy") +
+  ggtitle("Overall Occupancy for Route 4:")
+
+
+```
+# Generalized Linear Models (Poisson):
+
+From the Training data set, we build GLM for every day of the week considering a Poisson distribution.
+
+## Weekdays GLM Poisson
+
+### Stop 1919:
+
+- Take into account that predictions need to be given for each trip! 
+- Get the average rate for each bus stop-trip.
+
+```{r SundGLMPois, echo = T}
+#------------------------------------------------------------------------------
+# Stop 1919: 
+
+K=10
+
+
+k_fold_cv_Pois <- function(k, dat, dat_test){
+  part = floor(dim(dat)[1]/k)
+  sm <- list()
+  MSE = 0
+  k_fold_pred <- list()
+  predictions = 0
+  set.seed(123)
+  rand_ind <- matrix(sample(part*k, part*k, replace = F),
+                     nrow = k)
+  ind = 0
+  model_aic = 0
+  cv.error = rep(0, k)
+  for(i in 1:k){
+    glm.fit = glm(occupancy ~ Hour_f,
+                       family = poisson(link = "log"),
+                       data = dat[-rand_ind[i, ], ])
+    sm[[i]] = glm.fit
+    k_fold_pred[[i]] = predict(glm.fit, dat[rand_ind[i, ], ],
+                               type = "response")
+    MSE[i] = mean((dat$occupancy[rand_ind[i, ]] - k_fold_pred[[i]])^{2})
+  }
+  ind = which(MSE == min(MSE), arr.ind = T)
+  train_MSE = MSE[ind]
+  model = sm[[ind]]
+  test <- dat_test %>%
+    summarise(occupancy, Hour_f)
+  predictions = predict(model, test, type = "response")
+  test_MSE = mean((test$occupancy - predictions)^{2})
+  performance <- list("MSE" = MSE, "train_MSE" = train_MSE,
+                      "Best_Model" = model,
+                      "test_MSE" = test_MSE,
+                      "Predicted" = predictions)
+  return(performance)
+}
+
+#------------------------------------------------------------------------------
+
+Weekdays_Pois_cv <- k_fold_cv_Pois(10, route1_4_stop_1919_week_train,
+                                   route1_4_stop_1919_week_test)
+
+route1_4_stop_1919_week_test$Predictions <- Weekdays_Pois_cv[["Predicted"]]
+
+route1_4_stop_1919_week_test_Pois <- route1_4_stop_1919_week_test %>%
+  group_by(Hour_f) %>%
+  mutate(lambda = mean(occupancy))
+  
+
+route1_4_stop_1919_week_test_Pois %>%
+  group_by(Hour_f) %>%
+  ggplot(aes(x = Hour_f, y = occupancy)) +
+  geom_point(alpha = 0.01, color = "red") +
+  geom_point(aes(x = Hour_f, y = lambda),
+             alpha = 0.6, color = "red") +
+  geom_point(aes(x = Hour_f, y = Predictions),
+             alpha = 0.5, color = "blue")
+
+```
+
+### Stop 1883:
+
+```{r}
+
+route1_4_stop_1883_week <- data_for_reg_occupancy(weekdays,
+                                                  carta1_stop_id_route_4$Uniq_stops[1],
+                                                  route1_4)
+
+#----------------------------------------------------------------------
+# Data partition: 70% and 30%
+
+train_prop = 0.7
+#----------------------------------------------------------------------
+# Training Data: 
+#----------------------------------------------------------------------
+
+route1_4_stop_1883_week_train <- get_set(0.7, route1_4_stop_1883_week, "train")
+route1_4_stop_1883_week_test <- get_set(0.7, route1_4_stop_1883_week, "test")
+#----------------------------------------------------------------------
+
+K = 10
+
+Weekdays_1883_Pois_cv <- k_fold_cv_Pois(K, route1_4_stop_1883_week_train,
+                                        route1_4_stop_1883_week_test)
+
+route1_4_stop_1883_week_test$Predictions <- Weekdays_1883_Pois_cv[["Predicted"]]
+
+route1_4_stop_1883_week_test_Pois <- route1_4_stop_1883_week_test %>%
+  group_by(Hour_f) %>%
+  mutate(lambda = mean(occupancy))
+  
+
+route1_4_stop_1883_week_test_Pois %>%
+  group_by(Hour_f) %>%
+  ggplot(aes(x = Hour_f, y = occupancy)) +
+  geom_point(alpha = 0.01, color = "red") +
+  geom_point(aes(x = Hour_f, y = lambda),
+             alpha = 0.6, color = "red") +
+  geom_point(aes(x = Hour_f, y = Predictions),
+             alpha = 0.5, color = "blue")
+
+
+```
+
+
+### Stop 923:
+
+```{r}
+route1_4_stop_923_week <- data_for_reg_occupancy(weekdays,
+                                                  carta1_stop_id_route_4$Uniq_stops[2],
+                                                  route1_4)
+
+#----------------------------------------------------------------------
+# Data partition: 70% and 30%
+
+train_prop = 0.7
+#----------------------------------------------------------------------
+# Training Data: 
+#----------------------------------------------------------------------
+
+route1_4_stop_923_week_train <- get_set(0.7, route1_4_stop_923_week, "train")
+route1_4_stop_923_week_test <- get_set(0.7, route1_4_stop_923_week, "test")
+#----------------------------------------------------------------------
+
+K = 10
+
+Weekdays_923_Pois_cv <- k_fold_cv_Pois(K, route1_4_stop_923_week_train,
+                                       route1_4_stop_923_week_test)
+
+route1_4_stop_923_week_test$Predictions <- Weekdays_923_Pois_cv[["Predicted"]]
+
+route1_4_stop_923_week_test_Pois <- route1_4_stop_923_week_test %>%
+  group_by(Hour_f) %>%
+  mutate(lambda = mean(occupancy))
+  
+
+route1_4_stop_923_week_test_Pois %>%
+  group_by(Hour_f) %>%
+  ggplot(aes(x = Hour_f, y = occupancy)) +
+  geom_point(alpha = 0.01, color = "red") +
+  geom_point(aes(x = Hour_f, y = lambda),
+             alpha = 0.6, color = "red") +
+  geom_point(aes(x = Hour_f, y = Predictions),
+             alpha = 0.5, color = "blue")
+
+```
+
+### Stop 956:
+
+```{r}
+route1_4_stop_956_week <- data_for_reg_occupancy(weekdays,
+                                                  carta1_stop_id_route_4$Uniq_stops[35],
+                                                  route1_4)
+
+#----------------------------------------------------------------------
+# Data partition: 70% and 30%
+
+train_prop = 0.7
+#----------------------------------------------------------------------
+# Training Data: 
+#----------------------------------------------------------------------
+
+route1_4_stop_956_week_train <- get_set(train_prop, route1_4_stop_956_week, "train")
+route1_4_stop_956_week_test <- get_set(train_prop, route1_4_stop_956_week, "test")
+#----------------------------------------------------------------------
+
+K = 10
+
+Weekdays_956_Pois_cv <- k_fold_cv_Pois(K, route1_4_stop_956_week_train,
+                                       route1_4_stop_956_week_test)
+
+route1_4_stop_956_week_test$Predictions <- Weekdays_956_Pois_cv[["Predicted"]]
+
+route1_4_stop_956_week_test_Pois <- route1_4_stop_956_week_test %>%
+  group_by(Hour_f) %>%
+  mutate(lambda = mean(occupancy))
+  
+
+route1_4_stop_956_week_test_Pois %>%
+  group_by(Hour_f) %>%
+  ggplot(aes(x = Hour_f, y = occupancy)) +
+  geom_point(alpha = 0.01, color = "red") +
+  geom_point(aes(x = Hour_f, y = lambda),
+             alpha = 0.6, color = "red") +
+  geom_point(aes(x = Hour_f, y = Predictions),
+             alpha = 0.5, color = "blue")
+
+```
+
+
+### Stop 957:
+
+```{r}
+
+
+route1_4_stop_957_week <- data_for_reg_occupancy(weekdays, carta1_stop_id_route_4$Uniq_stops[35], route1_4)
+route1_4_stop_957_week <-zero_hour_check(route1_4_stop_957_week)
+
+#----------------------------------------------------------------------
+# Data partition: 70% and 30%
+
+train_prop = 0.7
+#----------------------------------------------------------------------
+# Training Data: 
+#----------------------------------------------------------------------
+
+route1_4_stop_957_week_train <- get_set(train_prop, route1_4_stop_957_week, "train")
+route1_4_stop_957_week_test <- get_set(train_prop, route1_4_stop_957_week, "test")
+#----------------------------------------------------------------------
+
+K = 10
+
+Weekdays_957_Pois_cv <- k_fold_cv_Pois(K, route1_4_stop_957_week_train,
+                                       route1_4_stop_957_week_test)
+sort(unique(route1_4_stop_957_week_train$Hour_f))
+route1_4_stop_957_week_test$Predictions <- Weekdays_957_Pois_cv[["Predicted"]]
+
+route1_4_stop_957_week_test_Pois <- route1_4_stop_957_week_test %>%
+  group_by(Hour_f) %>%
+  mutate(lambda = mean(occupancy))
+  
+
+route1_4_stop_957_week_test_Pois %>%
+  group_by(Hour_f) %>%
+  ggplot(aes(x = Hour_f, y = occupancy)) +
+  geom_point(alpha = 0.01, color = "red") +
+  geom_point(aes(x = Hour_f, y = lambda),
+             alpha = 0.6, color = "red") +
+  geom_point(aes(x = Hour_f, y = Predictions),
+             alpha = 0.5, color = "blue")
+
+```
+
+
+Let's make a for lop:
+
+```{r}
+
+K = 10
+train_prop = 0.7
+Route4_dir1_stops_week_Pois_cv <- list()
+Route4_dir1_stops_week_test <- list()
+
+for(i in 1:34){
+  data <- data_for_reg_occupancy(weekdays, carta1_stop_id_route_4$Uniq_stops[i], route1_4)
+  data_train <- get_set(train_prop, data , "train")
+  data_test <- get_set(train_prop, data , "test")
+  Route4_dir1_stops_week_Pois_cv[[i]] <- k_fold_cv_Pois(K, data_train, data_test)            
+  Route4_dir1_stops_week_test[[i]][["Predictions"]] <- Route4_dir1_stops_week_Pois_cv[[i]][["Predicted"]]
+}
+
+
+Route4_dir1_stops_week_Pois_cv[[35]] <- Weekdays_957_Pois_cv
+Route4_dir1_stops_week_test[[35]][["Predictions"]] <- Weekdays_957_Pois_cv[["Predicted"]]
+
+```
+
+
+## Mondays GLM Poisson
+
+
+# Appendix {-}
+
+```{r appendix1, echo = T, eval = F}
+data_for_reg <- function(Da, st, Y, Dat){
+  
+  if(Y == "board_count"){
+     Data_reg <- Dat %>%
+       filter(Day == Da, stop_id == st) %>%
+       mutate(Hour = lubridate::hour(Time),
+              Hour_f = as.factor(Hour)) %>%
+       group_by(Hour) %>%
+       summarise(board_count, Hour_f)
+  
+     Data_reg <- Data_reg[ , -c(1)]
+  }
+  else if(Y == "alight_count"){
+    Data_reg <- Dat %>%
+       filter(Day == Da, stop_id == st) %>%
+       mutate(Hour = lubridate::hour(Time),
+              Hour_f = as.factor(Hour)) %>%
+       group_by(Hour) %>%
+       summarise(alight_count, Hour_f)
+  
+    Data_reg <- Data_reg[ , -c(1)]
+  }
+  else if(Y == "occupancy"){
+    Data_reg <- Dat %>%
+       filter(Day == Da, stop_id == st) %>%
+       mutate(Hour = lubridate::hour(Time),
+              Hour_f = as.factor(Hour)) %>%
+       group_by(Hour) %>%
+       summarise(occupancy, Hour_f)
+  
+    Data_reg <- Data_reg[ , -c(1)]
+  }
+  else if(Y == "Load"){
+    Data_reg <- Dat %>%
+       filter(Day == Da, stop_id == st) %>%
+       mutate(Hour = lubridate::hour(Time),
+              Hour_f = as.factor(Hour)) %>%
+       group_by(Hour) %>%
+       mutate(load = board_count - alight_count) %>%
+       summarise(load, Hour_f)
+  
+    Data_reg <- Data_reg[ , -c(1)]
+  }
+ 
+  return(Data_reg)
+  
+}
+
+#-------------------------------------------------------------
+
+#----------------------------------------------------------------------
+
+Stop_id1_1_train <- Data_train %>%
+  filter(stop_id == selected_bus_id_1[1]) %>%
+  mutate(Hour = lubridate::hour(Time)) %>%
+  group_by(Day, Hour) %>%
+  summarise(board_count, Date, Day)
+
+
+Stop_id1_2_train <- Data_train %>%
+  filter(stop_id == selected_bus_id_1[2]) %>%
+  mutate(Hour = lubridate::hour(Time)) %>%
+  group_by(Week_day = as.factor(wday(Date)), Hour) %>%
+  summarise(lambda_Hour = mean(board_count), board_count,  Date, Day)
+
+
+Stop_id1_3_train <- Data_train %>%
+  filter(stop_id == selected_bus_id_1[3]) %>%
+  mutate(Hour = lubridate::hour(Time)) %>%
+  group_by(Week_day = as.factor(wday(Date)), Hour) %>%
+  summarise(lambda_Hour = mean(board_count), board_count, Date, Day)
+
+
+Stop_id1_4_train <- Data_train %>%
+  filter(stop_id == selected_bus_id_1[4]) %>%
+  mutate(Hour = lubridate::hour(Time)) %>%
+  group_by(Week_day = as.factor(wday(Date)), Hour) %>%
+  summarise(lambda_Hour = mean(board_count), board_count, Date, Day)
+
+
+
+#----------------------------------------------------------------------------------
+# Stop 1:
+#----------------------------------------------------------------------------------
+
+Sundays1_train <- data_for_reg("Sunday", selected_bus_id_1[1],
+                               "board_count", Data_train)
+
+Mondays1_train <- data_for_reg("Monday", selected_bus_id_1[1],
+                               "board_count", Data_train)
+
+Tuesdays1_train <- data_for_reg("Tuesday", selected_bus_id_1[1],
+                                "board_count", Data_train)
+
+Wednesdays1_train <- data_for_reg("Wednesday", selected_bus_id_1[1],
+                                "board_count", Data_train)
+
+Thursdays1_train <- data_for_reg("Thursday", selected_bus_id_1[1],
+                                "board_count", Data_train)
+
+Fridays1_train <- data_for_reg("Friday", selected_bus_id_1[1],
+                                "board_count", Data_train)
+#----------------------------------------------------------------------------------
+# Stop 2:
+#----------------------------------------------------------------------------------
+
+
+Sundays2_train <- data_for_reg("Sunday", selected_bus_id_1[2],
+                               "board_count", Data_train)
+
+Mondays2_train <- data_for_reg("Monday", selected_bus_id_1[2],
+                               "board_count", Data_train)
+
+Tuesdays2_train <- data_for_reg("Tuesday", selected_bus_id_1[2],
+                                "board_count", Data_train)
+
+Wednesdays2_train <- data_for_reg("Wednesday", selected_bus_id_1[2],
+                                "board_count", Data_train)
+
+Thursdays2_train <- data_for_reg("Thursday", selected_bus_id_1[2],
+                                "board_count", Data_train)
+
+Fridays2_train <- data_for_reg("Friday", selected_bus_id_1[2],
+                                "board_count", Data_train)
+
+#----------------------------------------------------------------------------------
+# Stop 3:
+#----------------------------------------------------------------------------------
+
+Sundays3_train <- data_for_reg("Sunday", selected_bus_id_1[3],
+                               "board_count", Data_train)
+
+Mondays3_train <- data_for_reg("Monday", selected_bus_id_1[3],
+                               "board_count", Data_train)
+
+Tuesdays3_train <- data_for_reg("Tuesday", selected_bus_id_1[3],
+                                "board_count", Data_train)
+
+Wednesdays3_train <- data_for_reg("Wednesday", selected_bus_id_1[3],
+                                "board_count", Data_train)
+
+Thursdays3_train <- data_for_reg("Thursday", selected_bus_id_1[3],
+                                "board_count", Data_train)
+
+Fridays3_train <- data_for_reg("Friday", selected_bus_id_1[3],
+                                "board_count", Data_train)
+
+#----------------------------------------------------------------------------------
+# Stop 4:
+#----------------------------------------------------------------------------------
+
+Sundays4_train <- data_for_reg("Sunday", selected_bus_id_1[4],
+                               "board_count", Data_train)
+
+Mondays4_train <- data_for_reg("Monday", selected_bus_id_1[4],
+                               "board_count", Data_train)
+
+Tuesdays4_train <- data_for_reg("Tuesday", selected_bus_id_1[4],
+                                "board_count", Data_train)
+
+Wednesdays4_train <- data_for_reg("Wednesday", selected_bus_id_1[4],
+                                "board_count", Data_train)
+
+Thursdays4_train <- data_for_reg("Thursday", selected_bus_id_1[4],
+                                "board_count", Data_train)
+
+Fridays4_train <- data_for_reg("Friday", selected_bus_id_1[4],
+                                "board_count", Data_train)
+
+
+#----------------------------------------------------------------------------
+
+
+
+#------------------------------------------------------------------------------
+# Stop 1: 
+
+Sun_stop2.mod_Hour <- glm(board_count ~ Hour_f, family =  poisson(link = "log"),
+                          data = Sundays2_train)
+
+Sun_stop2.mod_Hour.loglike <- logLik(Sun_stop2.mod_Hour)[1]
+
+#------------------------------------------------------------------------------
+# Stop 1: 
+
+Sun_stop3.mod_Hour <- glm(board_count ~ Hour_f, family = poisson(link = "log"),
+                          data = Sundays3_train)
+
+Sun_stop3.mod_Hour.loglike <- logLik(Sun_stop3.mod_Hour)[1]
+
+#------------------------------------------------------------------------------
+# Stop 1: 
+
+Weekdays_1919_Pois <- glm(occupancy ~ Hour_f, family = poisson(link = "log"),
+                          data = Weekdays_stop_1919_train)
+
+Sun_stop4.mod_Hour.loglike <- logLik(Sun_stop4.mod_Hour)[1]
+
+#------------------------------------------------------------------------------
+# Performance data: 
+#------------------------------------------------------------------------------
+
+#------------------------------------------------------------------------------
+# AIC:
+
+Sun_stop1.mod_Hour_AIC <- AIC(Sun_stop1.mod_Hour)
+Sun_stop2.mod_Hour_AIC <- AIC(Sun_stop2.mod_Hour)
+Sun_stop3.mod_Hour_AIC <- AIC(Sun_stop3.mod_Hour)
+Sun_stop4.mod_Hour_AIC <- AIC(Sun_stop4.mod_Hour)
+
+Sundays_train_glm_AIC <- data.frame(rbind(c(Sun_stop1.mod_Hour_AIC,
+                                            Sun_stop2.mod_Hour_AIC,
+                                            Sun_stop3.mod_Hour_AIC,
+                                            Sun_stop4.mod_Hour_AIC)))
+
+#------------------------------------------------------------------------------
+# Log-like:
+
+
+Sundays_train_glm.loglike <- data.frame(rbind(c(Sun_stop1.mod_Hour.loglike,
+                                            Sun_stop2.mod_Hour.loglike,
+                                            Sun_stop3.mod_Hour.loglike,
+                                            Sun_stop4.mod_Hour.loglike)))
+
+colnames(Sundays_train_glm_AIC) <- paste("stop_id_",
+                                         selected_bus_id_1,
+                                         sep = "")
+rownames(Sundays_train_glm_AIC) <- c("Poisson")
+Sundays_train_glm_AIC
+
+
+
+
+```
+
+

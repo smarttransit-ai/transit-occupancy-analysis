@@ -130,7 +130,7 @@ app.layout = html.Div(
                 html.Div(
                     className="four columns div-user-controls",
                     children=[
-                        dcc.Markdown('''# [SmartTransit.ai](https://smarttransit.ai) | CARTA Occupancy'''),
+                        dcc.Markdown('''# CARTA Occupancy'''),
 #                         html.Div(className="container",children=[html.P("Choose Statistics",className="five columns",style={"font-size": "1.4rem"}),
 #   ],style={'display': 'inline-block'}),
                  
