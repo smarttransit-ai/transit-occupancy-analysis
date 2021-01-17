@@ -8,83 +8,101 @@ import dash_html_components as html
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import dataextract
+#import dataextract
 from dash.dependencies import Input, Output
 from plotly import graph_objs as go
 from plotly.graph_objs import *
 from datetime import datetime as dt
 from datetime import time as tt
-#import swifter
-#import dateparser
-import os,sys,resource
+import swifter
+import dateparser
+import os ,sys #,resource
 import dask.dataframe as dd
 from fastparquet import ParquetFile
  
+
+#def write_parquet_file():
+# df = pd.read_csv('C:/Users/linds/transit-occupancy-dashboard/app/dataprep/chattanooga/data-files/cartaapc_dashboard.csv' , parse_dates=['date','scheduled_datetime','actual_arrival_datetime','trip_date','scheduled_arrival_time','trip_start_time'])
+# df['actual_arrival_time'] = df['actual_arrival_datetime'].dt.time
+# df['hour'] = df['actual_arrival_datetime'].dt.hour
+# df['minute'] = df['actual_arrival_datetime'].dt.minute
+# df['second'] = df['actual_arrival_datetime'].dt.second
+# df['trip_start_time'] = df['trip_start_time'].dt.time
+# df['triptime'] = df['trip_start_time']
+#df.to_parquet('C:/Users/linds/transit-occupancy-dashboard/app/dataprep/chattanooga/data-files/cartaapc_dashboard.parquet')
+#write_parquet_file()
+
+
+
 #resource.setrlimit(resource.RLIMIT_AS, (1e9, 1e9))  
 # Data preparation Code. Uncomment as required
 
-def return_seconds(trip_time,date):
-    row=dateparser.parse(trip_time)
-    d1=dateparser.parse(date)
-    if row is None : 
-        return None
-    else :
-       trip_start_time=row.time()
-       return d1,trip_start_time,trip_start_time.hour*60*60+trip_start_time.minute*60+trip_start_time.second,trip_start_time.hour,trip_start_time.minute
+# def return_seconds(trip_time,date):
+#     row=dateparser.parse(trip_time)
+#     d1=dateparser.parse(date)
+#     if row is None : 
+#         return None
+#     else :
+#        trip_start_time=row.time()
+#        return d1,trip_start_time,trip_start_time.hour*60*60+trip_start_time.minute*60+trip_start_time.second,trip_start_time.hour,trip_start_time.minute
 
-# df = dataextract.decompress_pickle('data/chattanooga/chattanooga_bus_occupancy_dashboard_20200828_update-3.pbz2')
+
+# #df = dataextract.decompress_pickle('data/chattanooga/chattanooga_bus_occupancy_dashboard_20200828_update-3.pbz2')
 # df = df[df['occupancy'] >= 0]
 # result=df
 
-# result=df.sort_values(['trip_name','route_id','date_time','direction_id','stop_sequence','stop_id','occupancy'],ascending=False).drop_duplicates(['trip_name','route_id','date_time','direction_id','stop_sequence','stop_id'],keep='first').sort_index().reset_index()
-# r= result[result.duplicated(['trip_name','route_id','date_time','direction_id','stop_sequence','stop_id'],keep=False)].sort_values(by=['trip_name','route_id','date_time','direction_id','stop_sequence','stop_id'])
+# result=df.sort_values(['trip_id','route_id','actual_arrival_datetime','direction_id','stop_sequence','stop_id','occupancy'],ascending=False).drop_duplicates(['trip_id','route_id','actual_arrival_datetime','direction_id','stop_sequence','stop_id'],keep='first').sort_index().reset_index()
+# r= result[result.duplicated(['trip_id','route_id','actual_arrival_datetime','direction_id','stop_sequence','stop_id'],keep=False)].sort_values(by=['trip_id','route_id','actual_arrival_datetime','direction_id','stop_sequence','stop_id'])
 # print(r.head())
-# dataextract.compress_pickle('data/chattanooga/chattanooga_bus_occupancy_dashboard_20200828_update-3', result)
-# sys.exit(0)
+# #dataextract.compress_pickle('data/chattanooga/chattanooga_bus_occupancy_dashboard_20200828_update-3', result)
+# #sys.exit(0)
 # startdate=df.date.min()
 # enddate=df.date.max()
-#pd.set_option('display.max_columns', None)
+# pd.set_option('display.max_columns', None)
 # routes=df.route_id.unique() 
 # directions=df.direction_desc.unique()
 # df.loc[df['direction_desc'] == 'OUTYBOUND', ['direction_desc']] = 'OUTBOUND'
 # directions=df.direction_desc.unique()
 # print(enddate,startdate,routes,directions,df.dtypes)
-#print(df.head())
-#sys.exit(0) 
+# print(df.head())
+# #sys.exit(0) 
  
 
 # #df['triptime']=df.swifter.apply(lambda x: dateparser.parse(x['trip_start_time']),axis=1)
-# df['datetime'],df['triptime'], df["time_day_seconds"], df["hour"] , df["minute"] = zip(*df.swifter.apply(lambda row: return_seconds(row.trip_start_time,row.date_time), axis=1))
-# print("Stage1")
+# #df['datetime'],df['triptime'], df["time_day_seconds"], df["hour"] , df["minute"] = zip(*df.swifter.apply(lambda row: return_seconds(row.trip_start_time,row.actual_arrival_datetime), axis=1))
 # #df['datetime']=df.swifter.apply(lambda x: dateparser.parse(x['date_time']),axis=1)
-# #df['time_day_seconds']=df.swifter.apply(lambda row: return_seconds(row.trip_start_time), axis=1)
-# df['month']=df['datetime'].dt.month
-# print("Stage2")
-# # df['hour']=df['triptime'].dt.hour
-# # df['minute']=df['triptime'].dt.minute
-# df['year']=df['datetime'].dt.year
-# print("Stage3")
-# df['day']=df['datetime'].dt.day
-# df['dayofweek']=df['datetime'].dt.dayofweek
-# dataextract.compress_pickle('data/chattanooga/chattanooga_bus_occupancy_dashboard_20200828_update-2', df)
-
-
 # sdf = dd.from_pandas(df, npartitions=10)
-# custom= {'occupancy': 'max', 'board_count': 'sum', 'service_period':'first','triptime': 'first','datetime':'first','time_day_seconds':'first','trip_start_time':'first','dayofweek':'first'}
-# max_chat_occupancy_board_by_trip_day=sdf.groupby(['trip_id','route_id','direction_desc','month','year','date']).agg(custom).reset_index()
+
+# df['month']=df['date'].dt.month
+# #df['hour']=df['actual_arrival_time'].dt.hour
+# #df['minute']=df['actual_arrival_time'].dt.minute
+# #df['second']=df['actual_arrival_time'].dt.second
+# df['year']=df['date'].dt.year
+# df['day']=df['date'].dt.day
+# df['dayofweek']=df['date'].dt.dayofweek
+# df['time_day_seconds']=df['hour']*3600 + df['minute']*60 + df['second']
+
+# #dataextract.compress_pickle('data/chattanooga/chattanooga_bus_occupancy_dashboard_20200828_update-2', df)
+
+
+# #sdf = dd.from_pandas(df, npartitions=10)
+# #custom= {'occupancy': 'max', 'board_count': 'sum', 'service_period':'first','triptime': 'first','date':'first','time_day_seconds':'first','trip_start_time':'first','dayofweek':'first'}
+# custom= {'occupancy': 'max', 'board_count': 'sum', 'service_period':'first','triptime': 'first','time_day_seconds':'first','trip_start_time':'first','dayofweek':'first'}
+# max_chat_occupancy_board_by_trip_day=df.groupby(['trip_id','route_id','direction_desc','month','year','date']).agg(custom).reset_index()
 # custom= {'occupancy': 'max', 'board_count': 'sum','service_period':'first','time_day_seconds':'first','trip_start_time':'first','dayofweek':'first'}
-# max_chat_occupancy_board_by_stop_day=sdf.groupby(['route_id','trip_id','stop_id','direction_desc','stop_name','stop_lat','stop_lon','month','year','date']).agg(custom).reset_index()
-# max_chat_occupancy_board_by_route_day=sdf.groupby(['route_id','direction_desc','month','year','date']).agg(custom).reset_index()
-# max_chat_occupancy_board_by_trip_day.to_parquet('data/chattanooga/max_chat_occupancy_board_by_trip_day.parquet', engine='pyarrow')
+# max_chat_occupancy_board_by_stop_day=df.groupby(['route_id','trip_id','stop_id','direction_desc','stop_lat','stop_lon','month','year','date']).agg(custom).reset_index()
+# #max_chat_occupancy_board_by_stop_day=df.groupby(['route_id','trip_id','stop_id','direction_desc','stop_lat','stop_lon','month','year','date','dayofweek']).agg(custom).reset_index()
+# max_chat_occupancy_board_by_route_day=df.groupby(['route_id','direction_desc','month','year','date']).agg(custom).reset_index()
+# max_chat_occupancy_board_by_trip_day.to_parquet('app/data/chattanooga/max_chat_occupancy_board_by_trip_day_01162021.parquet', engine='pyarrow')
 # print('1')
-# max_chat_occupancy_board_by_stop_day.to_parquet('data/chattanooga/max_chat_occupancy_board_by_stop_day.parquet', engine='pyarrow')
+# max_chat_occupancy_board_by_stop_day.to_parquet('app/data/chattanooga/max_chat_occupancy_board_by_stop_day_01162021.parquet', engine='pyarrow')
 # print('2')
-# max_chat_occupancy_board_by_route_day.to_parquet('data/chattanooga/max_chat_occupancy_board_by_route_day.parquet', engine='pyarrow')
+# max_chat_occupancy_board_by_route_day.to_parquet('app/data/chattanooga/max_chat_occupancy_board_by_route_day_01162021.parquet', engine='pyarrow')
 # print('3')
 # print(max_chat_occupancy_board_by_trip_day.head())
 # print(max_chat_occupancy_board_by_trip_day.dtypes)
 # print(max_chat_occupancy_board_by_trip_day.datetime.min().compute())
-# sys.exit(0)
+# # sys.exit(0)
  
 # sys.exit(0)
 #set the server and global parameters
@@ -100,16 +118,16 @@ px.set_mapbox_access_token(mapbox_access_token)
 #load all required dataframes as dask
 #sdf = dd.read_parquet('data/chattanooga/occupancy.parquet', engine='fastparquet')
 
-max_chat_occupancy_board_by_trip_day=dd.read_parquet('data/chattanooga/max_chat_occupancy_board_by_trip_day.parquet', engine='fastparquet')
-max_chat_occupancy_board_by_stop_day=dd.read_parquet('data/chattanooga/max_chat_occupancy_board_by_stop_day.parquet', engine='fastparquet')
-max_chat_occupancy_board_by_route_day=dd.read_parquet('data/chattanooga/max_chat_occupancy_board_by_route_day.parquet', engine='fastparquet')
+max_chat_occupancy_board_by_trip_day=dd.read_parquet('data/chattanooga/max_chat_occupancy_board_by_trip_day_01162021.parquet', engine='fastparquet')
+max_chat_occupancy_board_by_stop_day=dd.read_parquet('data/chattanooga/max_chat_occupancy_board_by_stop_day_01162021.parquet', engine='fastparquet')
+max_chat_occupancy_board_by_route_day=dd.read_parquet('data/chattanooga/max_chat_occupancy_board_by_route_day_01162021.parquet', engine='fastparquet')
 print (max_chat_occupancy_board_by_trip_day.head(n=10))
 
 
 
 #find all routes and directions.
-startdate=max_chat_occupancy_board_by_trip_day.datetime.min().compute() 
-enddate=max_chat_occupancy_board_by_trip_day.datetime.max().compute() 
+startdate=max_chat_occupancy_board_by_trip_day.date.min().compute() 
+enddate=max_chat_occupancy_board_by_trip_day.date.max().compute() 
 
 routes=max_chat_occupancy_board_by_trip_day.route_id.unique().compute() 
 directions=max_chat_occupancy_board_by_trip_day.direction_desc.unique().compute()
