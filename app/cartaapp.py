@@ -131,8 +131,11 @@ px.set_mapbox_access_token(mapbox_access_token)
 max_chat_occupancy_board_by_trip_day=dd.read_parquet('data/chattanooga/max_chat_occupancy_board_by_trip_day_01162021.parquet', engine='fastparquet')
 max_chat_occupancy_board_by_stop_day=dd.read_parquet('data/chattanooga/max_chat_occupancy_board_by_stop_day_01162021.parquet', engine='fastparquet')
 max_chat_occupancy_board_by_route_day=dd.read_parquet('data/chattanooga/max_chat_occupancy_board_by_route_day_01162021.parquet', engine='fastparquet')
-summaryTable = dd.read_parquet('dataprep/chattanooga/data-files/table1.parquet', engine='fastparquet')
+
+summaryTable = dd.read_parquet('dataprep/chattanooga/data-files/table2.parquet', engine='fastparquet')
 summaryTable = summaryTable.compute()
+
+
 #print(result_max_chat_occupancy_board_by_trip_day.head(n=5))
 
 #print (max_chat_occupancy_board_by_route_day.head(n=10))
@@ -391,7 +394,7 @@ app.layout = html.Div(
                                  dbc.Tab(label='Show by Routes',
                                          tab_id='routes', className="bg-dark text-white", children=[dcc.Loading(
                                              id="loading-icon3", children=[dcc.Graph(id="histogram2"), ], type='default')]),
-                                 dbc.Tab(label='Occupancy Table',
+                                 dbc.Tab(label='Occupancy Table by Trip',
                                          tab_id='tableOccu', className="bg-dark text-white"
                                          
                                           , children=[dcc.Loading(
@@ -412,7 +415,8 @@ app.layout = html.Div(
                                                           'fontWeight': 'bold'
                                                       },
                                                       )
-                                              )]
+                                              )
+                                              ]
                                           
                                           
                                          ),
@@ -680,15 +684,17 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
     datecondtition3 = ((max_chat_occupancy_board_by_route_day['date'] >= start_date) & (max_chat_occupancy_board_by_route_day['date'] <= end_date))
     
     if histogramtrip=='trips':
-        result_max_chat_occupancy_board_by_trip_day = max_chat_occupancy_board_by_trip_day [  (route_condition) & (direction_condition) & (occupancycondition) & (datecondtition) & (month_condition) &(timecondition) & (weekday_condition) ].compute().sort_values(['time_day_seconds'])
+        result_max_chat_occupancy_board_by_trip_day = max_chat_occupancy_board_by_trip_day [  (route_condition) & (direction_condition) & (occupancycondition) & (month_condition) & (weekday_condition) & (datecondtition) & (timecondition) ].compute().sort_values(['time_day_seconds'])
         
-        custom= {'occupancy': ['max','min','mean'],  'board_count': 'sum'} #'triptime': 'first','time_day_seconds':'first','trip_start_time':'first','dayofweek':'first'
-        customSummaryTable=max_chat_occupancy_board_by_trip_day.groupby(['route_id','direction_desc','month','year','service_period']).agg(custom).reset_index()
+        custom= {'occupancy': ['max','min','mean'],  'board_count': 'sum'} #, 'triptime': 'first','time_day_seconds':'first','trip_start_time':'first','dayofweek':'first'
+        customSummaryTable=result_max_chat_occupancy_board_by_trip_day.groupby(['trip_id','route_id','direction_desc','dayofweek','month','year','service_period']).agg(custom).reset_index()
         customSummaryTable.columns = ["_".join(x) for x in customSummaryTable.columns.ravel()]
         table1=customSummaryTable
         
-        #table1.to_parquet('C:/Users/linds/transit-occupancy-dashboard/app/dataprep/chattanooga/data-files/table1.parquet')
-        #df1 = dd.read_parquet('C:/Users/linds/transit-occupancy-dashboard/app/dataprep/chattanooga/data-files/table1.parquet', engine='fastparquet')
+        table1['occupancy_mean'] = table1['occupancy_mean'].round(decimals=2)
+        
+        #table1.to_parquet('C:/Users/linds/transit-occupancy-dashboard/app/dataprep/chattanooga/data-files/table2.parquet', engine='fastparquet', compression='gzip')
+        #df1 = dd.read_parquet('C:/Users/linds/transit-occupancy-dashboard/app/dataprep/chattanooga/data-files/table2.parquet', engine='fastparquet')
         
         if(len(result_max_chat_occupancy_board_by_trip_day.index) ==0) :return {}
         if statisticskind=="board_count":
@@ -718,15 +724,58 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
         )
         del result_max_chat_occupancy_board_by_trip_day        
         #return  fig2
+        
+    elif histogramtrip=='tableOccu':
+        
+        result_max_chat_occupancy_board_by_route_day=max_chat_occupancy_board_by_route_day [ (route_condition3) & (direction_condition3) & (occupancycondition3) & (month_condition3) &  (datecondtition3)  & (timecondition3)  & (weekday_condition3)  ].compute()
+        result_max_chat_occupancy_board_by_trip_day = max_chat_occupancy_board_by_trip_day [  (route_condition) & (direction_condition) & (occupancycondition) & (month_condition) & (datecondtition) & (timecondition) & (weekday_condition) ].compute().sort_values(['time_day_seconds'])
+        
+        custom= {'occupancy': ['max','min','mean'],  'board_count': 'sum'} #, 'triptime': 'first','time_day_seconds':'first','trip_start_time':'first','dayofweek':'first'
+        customSummaryTable=result_max_chat_occupancy_board_by_trip_day.groupby(['trip_id','route_id','direction_desc','month','year','service_period']).agg(custom).reset_index()
+        customSummaryTable.columns = ["_".join(x) for x in customSummaryTable.columns.ravel()]
+        table1=customSummaryTable
+        table1['occupancy_mean'] = table1['occupancy_mean'].round(decimals=2)
+        
+        if(len(result_max_chat_occupancy_board_by_route_day.index) ==0) :return {}
+        if statisticskind=="board_count":
+            fig2 = px.box(result_max_chat_occupancy_board_by_route_day,labels={'route_id':'Routes','occupancy':'Total Boardings'}, x="route_id", y="board_count",color="route_id",)
+        else:
+            fig2 = px.box(result_max_chat_occupancy_board_by_route_day,labels={'route_id':'Routes','occupancy':'Max Daily Occupancy'}, x="route_id", y="occupancy",color="route_id",)
+       
+        fig2.update_layout(
+            autosize=True,
+            bargap=0.1,
+            xaxis_type='category',
+            bargroupgap=0,
+            barmode="stack",
+            margin=go.layout.Margin(l=0, r=35, t=0, b=0),
+            plot_bgcolor="#31302F",
+            font=dict(color="white"),
+            paper_bgcolor="#31302F",
+            yaxis=dict(                                    
+                #range=[0, occupancymax+2],
+                showticklabels=True,
+                showgrid=False,
+                fixedrange=True,
+                rangemode="nonnegative",
+                zeroline=False,
+            ),
+            xaxis_tickangle=-45,
+            hoverlabel=dict(font=dict(size=12))
+        )
+        del result_max_chat_occupancy_board_by_route_day
+        
     elif histogramtrip=='stops':
         result_max_chat_occupancy_board_by_stop_day=max_chat_occupancy_board_by_stop_day [ (route_condition2) & (direction_condition2) & (occupancycondition2) & (month_condition2) &  (datecondtition2)  & (timecondition2)  & (weekday_condition2)  ].compute()
+        result_max_chat_occupancy_board_by_trip_day = max_chat_occupancy_board_by_trip_day [  (route_condition) & (direction_condition) & (occupancycondition) & (month_condition) & (datecondtition) & (timecondition) & (weekday_condition) ].compute().sort_values(['time_day_seconds'])
         
         #result_max_chat_occupancy_board_by_trip_day = max_chat_occupancy_board_by_trip_day [  (route_condition) & (direction_condition) & (occupancycondition) & (datecondtition) & (month_condition) &(timecondition) & (weekday_condition) ].compute().sort_values(['time_day_seconds'])
         #table1=result_max_chat_occupancy_board_by_trip_day
-        custom= {'occupancy': ['max','min','mean'],  'board_count': 'sum'} #'triptime': 'first','time_day_seconds':'first','trip_start_time':'first','dayofweek':'first'
-        customSummaryTable=max_chat_occupancy_board_by_trip_day.groupby(['route_id','direction_desc','month','year','service_period']).agg(custom).reset_index()
+        custom= {'occupancy': ['max','min','mean'],  'board_count': 'sum'} #, 'triptime': 'first','time_day_seconds':'first','trip_start_time':'first','dayofweek':'first'
+        customSummaryTable=result_max_chat_occupancy_board_by_trip_day.groupby(['trip_id','route_id','direction_desc','month','year','service_period']).agg(custom).reset_index()
         customSummaryTable.columns = ["_".join(x) for x in customSummaryTable.columns.ravel()]
         table1=customSummaryTable
+        table1['occupancy_mean'] = table1['occupancy_mean'].round(decimals=2)
         
         if(len(result_max_chat_occupancy_board_by_stop_day.index) ==0) :return {}
         if statisticskind=="board_count":
@@ -758,14 +807,15 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
         #return  fig2
     else: #routes
         result_max_chat_occupancy_board_by_route_day=max_chat_occupancy_board_by_route_day [ (route_condition3) & (direction_condition3) & (occupancycondition3) & (month_condition3) &  (datecondtition3)  & (timecondition3)  & (weekday_condition3)  ].compute()
+        result_max_chat_occupancy_board_by_trip_day = max_chat_occupancy_board_by_trip_day [  (route_condition) & (direction_condition) & (occupancycondition) & (month_condition) & (datecondtition) & (timecondition) & (weekday_condition) ].compute().sort_values(['time_day_seconds'])
         
         # result_max_chat_occupancy_board_by_trip_day = max_chat_occupancy_board_by_trip_day [  (route_condition) & (direction_condition) & (occupancycondition) & (datecondtition) & (month_condition) &(timecondition) & (weekday_condition) ].compute().sort_values(['time_day_seconds'])
         # table1=result_max_chat_occupancy_board_by_trip_day
-        custom= {'occupancy': ['max','min','mean'],  'board_count': 'sum'} #'triptime': 'first','time_day_seconds':'first','trip_start_time':'first','dayofweek':'first'
-        customSummaryTable=max_chat_occupancy_board_by_trip_day.groupby(['route_id','direction_desc','month','year','service_period']).agg(custom).reset_index()
+        custom= {'occupancy': ['max','min','mean'],  'board_count': 'sum'} #, 'triptime': 'first','time_day_seconds':'first','trip_start_time':'first','dayofweek':'first'
+        customSummaryTable=result_max_chat_occupancy_board_by_trip_day.groupby(['trip_id','route_id','direction_desc','month','year','service_period']).agg(custom).reset_index()
         customSummaryTable.columns = ["_".join(x) for x in customSummaryTable.columns.ravel()]
-        table1=customSummaryTable 
-        
+        table1=customSummaryTable
+        table1['occupancy_mean'] = table1['occupancy_mean'].round(decimals=2)
         
         if(len(result_max_chat_occupancy_board_by_route_day.index) ==0) :return {}
         if statisticskind=="board_count":
@@ -800,7 +850,7 @@ def update_histogram(start_date, end_date,  busroutes, months, directions,days,o
     del max_chat_occupancy_board_by_stop_day
     del max_chat_occupancy_board_by_route_day
     
-    table1=table1.compute()
+   #table1=table1.compute()
     table1=table1.to_dict('records')
     fig3=fig2
     return  fig2, fig3, table1
@@ -817,6 +867,6 @@ if __name__ == '__main__':
 # df = max_chat_occupancy_board_by_trip_day=dd.read_parquet('C:/users/linds/transit-occupancy-dashboard/app/data/chattanooga/max_chat_occupancy_board_by_trip_day.parquet', engine='fastparquet')
 # df.shape[0].compute()
 
-#routedf = max_chat_occupancy_board_by_trip_day=dd.read_parquet('C:/users/linds/transit-occupancy-dashboard/app/data/chattanooga/max_chat_occupancy_board_by_trip_day.parquet', engine='fastparquet')
-#df = max_chat_occupancy_board_by_route_day=dd.read_parquet('C:/users/linds/transit-occupancy-dashboard/app/data/chattanooga/max_chat_occupancy_board_by_route_day.parquet', engine='fastparquet')
+#max_chat_occupancy_board_by_trip_day=dd.read_parquet('C:/users/linds/transit-occupancy-dashboard/app/data/chattanooga/max_chat_occupancy_board_by_trip_day.parquet', engine='fastparquet')
+#max_chat_occupancy_board_by_route_day=dd.read_parquet('C:/users/linds/transit-occupancy-dashboard/app/data/chattanooga/max_chat_occupancy_board_by_route_day.parquet', engine='fastparquet')
 
