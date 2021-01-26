@@ -44,22 +44,26 @@ a {
 .textleft{
   text-align:left;
 }
-
 /* Graph Layout ––––––––––––––––––––––––––––––––––––––––––––––––––*/
 .div-for-charts{
   display: flex;
   flex-direction: column;
-  height: 94vh;
+  height: 100vh;
   width: 100%;
 }
 #histogram {
-  flex-grow: 3 
+  flex-grow: 1
 }
 #map-graph {
-  flex-grow: 1 
+  flex-grow: 1
 }
 #footer {  
-  width:100vw;
+  width:100%;
+  padding: 0;
+  position : relative;
+  bottom : 0;
+  height : 40px;
+  margin-top : 40px;
   background-color: white;
   color:black;
   height:auto;
@@ -131,6 +135,11 @@ a {
 #date-picker-end{
   width: 100%; 
 }
+#my-date-picker-range{
+  width: 100%; 
+}
+
+
 
 ._dash-undo-redo {
   display: none;
@@ -142,15 +151,15 @@ a {
   border:none;
 }
 
-.DateInput.DateInput_1 {
-  background-color: #1e1e1e;
-}
+/*.DateInput.DateInput_1 {
+   background-color: #1e1e1e; 
+}*/
 
 .SingleDatePickerInput__withBorder {
   border-radius: 3px;
   color: #dbdbdb;
-  background: #1e1e1e;
-  background-color: #1e1e1e;
+  /* background: #1e1e1e;
+  background-color: #1e1e1e; */
 }
 .SingleDatePickerInput.SingleDatePickerInput_1.SingleDatePickerInput__withBorder.SingleDatePickerInput__withBorder_2 {
   border: 0.0px solid #dbdbdb;
@@ -171,6 +180,18 @@ a {
   .four, .eight {
       min-width: 100%;
  }
+ #footer {  
+  width:100%;
+  padding: 0px;
+  position : relative;
+  bottom : 0;
+  height : 40px;
+  margin-top : 40px;
+  background-color: white;
+  color:black;
+  height:auto;
+  text-align: center;
+}
  .textright,.textleft{
   text-align:center;
 }
