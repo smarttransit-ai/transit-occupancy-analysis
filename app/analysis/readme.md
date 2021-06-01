@@ -2,6 +2,8 @@
 
 This folder is where the analysis and results are kept. 
 
+* `Data_Preparation.ipynb`: This notebook is written in python and prepares the data (in this case the CARTA dataset) for regression. Part of its main function is export the prepared data as `*.csv` to a folder that characterizes its dependendent variable (board or alight counts) and its `route_id`, `direction_id`, and `stop_id`.
+* `Zero_Inf_RF_PySpark.ipynb`: This notebook uses PySpark and has the a function that that classifies zeros and counts using Random Forest. Then, it performs a regression model for the predicted counts. Besides that, it exports the trained models to a folder that characterizes its dependendent variable (board or alight counts) and its `route_id`, `direction_id`, and `stop_id`.
 * `RF_Pipeline.ipynb`:
 * `Demand_Model_Function.ipynb`: This notebook is written in R and contains some functions for data processing and machine learning. These functions are part of a general function that applies machine learning models to board and alight counts. The obtained information is exported as *.csv and *.tex files.
 * `Demand_Model_Function_Py.ipynb`: This notebook is the Python version of `Demand_Model_Function.ipynb`. This notebook is not finished yet.
