@@ -5,7 +5,7 @@ This folder is where the analysis and results are kept.
 * `Data_Preparation.ipynb`: This notebook is written in python and prepares the data (in this case the CARTA dataset) for regression. Part of its main function is export the prepared data as `*.csv` to a folder that characterizes its dependendent variable (board or alight counts) and its `route_id`, `direction_id`, and `stop_id`.
 * `Zero_Inf_RF_PySpark.ipynb`: This notebook uses PySpark and has the a function that that classifies zeros and counts using Random Forest. Then, it performs a regression model for the predicted counts. Besides that, it exports the trained models to a folder that characterizes its dependendent variable (board or alight counts) and its `route_id`, `direction_id`, and `stop_id`.
 * `Zero_Infl_Random_Forest.ipynb`: This notebook is an updated version of `Zero_Inf_RF_PySpark.ipynb` with a new feature called `month_average_board_count` which is the The average `board_count` for a given bus stop (`stop_id`) and the time period in the last month. Also, it shows the results using the following `stop_id`s from `route_id == 4` and `direction_id == 1`:
-  - 12.
+  - `stop_id == '12'`.
   - 1351.
   - 1883. 
 * `RF_Pipeline.ipynb`:
