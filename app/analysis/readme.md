@@ -22,7 +22,11 @@
 
 ## Overview
 
-In this part of our repository you will find information about board count modeling at the bus stop level, and maximum occupancy at the trip level.
+<img src="Pictures/data_structure_routes.png" align="right" width="450" height="400" caption="GTFS CARTA Dataset: Inbound Routes."/>
+
+In this part of our repository you will find information about board count modeling at the bus stop level, and maximum occupancy at the trip level. The Models at the bus stop level were trained using data that was grouped by `route_id`, `direction id`, `stop_id`, and data partition. We created a unique folder for each bus stop to store the models and relevant data. The path to these folders follows a hierarchical structure given by their `route_id`, `direction id`, `stop_id`, and data partition. Therefore, we created two notebooks to aggregate the data. 
+
+Similarly, the trip data was grouped by `route_id`, `direction id`, and data partition. We created a unique folder for each trip.v
 
 ### Getting Started
 
@@ -32,11 +36,8 @@ R is an open source software that can be downloaded from [R Cran](https://cran.r
 
 ### Aggregated Performances
 
-<img src="Pictures/data_structure_routes.png" align="right" width="450" height="400" caption="GTFS CARTA Dataset: Inbound Routes."/>
 
-The Models at the bus stop level were trained using data that was grouped by `route_id`, `direction id`, `stop_id`, and data partition. We created a unique folder for each bus stop to store the models and relevant data. The path to these folders follows a hierarchical structure given by their `route_id`, `direction id`, `stop_id`, and data partition. Therefore, we created two notebooks to aggregate the data. 
 
-Similarly, the trip data was grouped by `route_id`, `direction id`, and data partition. We created a unique folder for each trip.
 
 #### Bus Stop Level
 
