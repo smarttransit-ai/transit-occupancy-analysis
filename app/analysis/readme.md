@@ -32,7 +32,17 @@ R is an open source software that can be downloaded from [R Cran](https://cran.r
 
 ### Aggregated Performances
 
+#### Bus Stop Level
+
+* `All_GLM_Models_Performance.ipynb`
+
+#### Trip Level
+
+* 
+
 ## Folders and Characteristics
+
+<img src="Pictures/data_structure_routes.png" align="right" width="450" height="400" caption="GTFS CARTA Dataset: Inbound Routes."/>
 
 ### Folder 1
 
