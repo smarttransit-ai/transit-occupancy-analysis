@@ -7,8 +7,10 @@
 
 * [Overview](#overview)
   * [Getting Started](#getting-started)
-* [Files and Characteristics](#files-characteristics)
-* [Contributing](#contributing)
+* [Folders and Characteristics](#files-characteristics)
+  * [Folder 1](#folder1)
+  * [Related Notebooks](#related-notebooks)
+* [Contribution](#contribution)
 * [License](#license)
 * [Contact](#contact)
 * [Acknowledgements](#acknowledgements)
@@ -16,12 +18,17 @@
 
 ## Overview
 
+In this part of our repository you will find information about board count modeling at the bus stop level, and maximum occupancy at the trip level.
+
 ### Getting Started
 
-The [Preliminary-Information](Preliminary-Information.html) explains and shows the all the data set and how it is implemented into the web App. For those of you who are not familiar with [R Cran](https://cran.r-project.org/) and [R Studio](https://rstudio.com/), please review this document if you want to understand the basic commands for data analysis and visualization. 
+R is an open source software that can be downloaded from [R Cran](https://cran.r-project.org/). Also, **R Studio** is the most widely used interpreter, and it can be downloaded from [R Studio](https://rstudio.com/). 
 
+## Folders and Characteristics
 
-## Files and Characteristics
+### Folder 1
+
+### Related Notebooks
 
 This folder is where the analysis and results are kept. 
 
@@ -41,3 +48,13 @@ This folder is where the analysis and results are kept.
 *  `Data_Example`: This folder has some data that can be used to run the notebooks.
 * `Rand_Forest_L.ipynb`: This notebook contains the Random Forest based models at the bus stop level. This code was written in R. There two models in this notebook: Zero-Inflated Random Forest and (Vanilla) Random Forest.
 * `Trip_Analysis1.ipynb`: This notebook contains the Random Forest based models at the trip stop level. This code was written in R.
+
+## Contribution
+
+## License
+
+## Contact
+
+## Acknowledgements
+
+This material is based upon work supported by the Department of Energy, Office of Energy Efficiency and Renewable Energy (EERE), under Award NumberDE-EE0008467 and National Science Foundation through award numbers 1818901, 1952011, 2029950 and 2029952. The authors will also like to acknowledge the computation resources provided by the Research Computing Data Core at the University of Houston and through cloud research credits provided by Google.
