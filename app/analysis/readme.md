@@ -1,4 +1,4 @@
-<img src="Pictures/Inbound_Routes.png" align="right" width="450" height="400" alt = "GTFS CARTA Dataset: Inbound Routes."/>
+<img src="Pictures/Inbound_Routes.png" align="right" width="450" height="400" caption="GTFS CARTA Dataset: Inbound Routes."/>
 
 
 # Public Transportation Demand
@@ -59,4 +59,4 @@ This folder is where the analysis and results are kept.
 
 ## Acknowledgements
 
-This material is based upon work supported by the Department of Energy, Office of Energy Efficiency and Renewable Energy (EERE), under Award NumberDE-EE0008467 and National Science Foundation through award numbers 1818901, 1952011, 2029950 and 2029952. The authors will also like to acknowledge the computation resources provided by the Research Computing Data Core at the University of Houston and through cloud research credits provided by Google.
+This material is based upon work supported by the Department of Energy, Office of Energy Efficiency and Renewable Energy (EERE), under Award Number DE-EE0008467 and National Science Foundation through award numbers 1818901, 1952011, 2029950 and 2029952. The authors will also like to acknowledge the computation resources provided by the Research Computing Data Core at the University of Houston and through cloud research credits provided by Google.
