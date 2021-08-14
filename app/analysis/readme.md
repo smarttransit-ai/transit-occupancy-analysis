@@ -8,6 +8,8 @@
 
 * [Overview](#overview)
   * [Getting Started](#getting-started)
+* [Main Files](#main-files)
+  * [Aggregated Performances](#aggregated-performances)
 * [Folders and Characteristics](#files-characteristics)
   * [Pictures](#folder1)
   * [Data_Example](#data-example)
@@ -25,6 +27,10 @@ In this part of our repository you will find information about board count model
 ### Getting Started
 
 R is an open source software that can be downloaded from [R Cran](https://cran.r-project.org/). Also, **R Studio** is the most widely used interpreter, and it can be downloaded from [R Studio](https://rstudio.com/). 
+
+## Main Files
+
+### Aggregated Performances
 
 ## Folders and Characteristics
 
