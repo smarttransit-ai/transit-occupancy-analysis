@@ -7,7 +7,7 @@
 
 * [Overview](#overview)
   * [Getting Started](#getting-started)
-*
+* [Files and Characteristics](#files-characteristics)
 * [Contributing](#contributing)
 * [License](#license)
 * [Contact](#contact)
