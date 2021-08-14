@@ -1,22 +1,27 @@
-<img src="Pictures/Inbound_Routes.png" align="right" width="350" height="350"/>
+<img src="Pictures/Inbound_Routes.png" align="right" width="450" height="400"/>
+
+# Public Transportation Demand
 
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
 
 * [Overview](#overview)
-  * [Restricted Use](#restricted-use)
-* [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
+  * [Getting Started](#getting-started)
+*
 * [Contributing](#contributing)
 * [License](#license)
 * [Contact](#contact)
 * [Acknowledgements](#acknowledgements)
 
 
+## Overview
+
+### Getting Started
+
+The [Preliminary-Information](Preliminary-Information.html) explains and shows the all the data set and how it is implemented into the web App. For those of you who are not familiar with [R Cran](https://cran.r-project.org/) and [R Studio](https://rstudio.com/), please review this document if you want to understand the basic commands for data analysis and visualization. 
 
 
-# Files and Characteristics
+## Files and Characteristics
 
 This folder is where the analysis and results are kept. 
 
