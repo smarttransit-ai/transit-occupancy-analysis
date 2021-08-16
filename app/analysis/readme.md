@@ -34,6 +34,8 @@ R is an open source software that can be downloaded from [R Cran](https://cran.r
 
 ## Main Files
 
+We performed two different data prepartions. One for the bus stop level analysis, and another one for the trip analysis.
+
 * `Data_Preparation.ipynb`
 
 ### Aggregated Performances
