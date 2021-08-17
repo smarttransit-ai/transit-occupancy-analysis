@@ -1,8 +1,6 @@
+<figure>
 <img src="Pictures/Inbound_Routes.png" align="right" width="450" height="400" caption="GTFS CARTA Dataset: Inbound Routes."/>
-.caption[
-**Fig. 1:** Image caption
-]
-
+</figure>
 
 # Public Transportation Demand
 
