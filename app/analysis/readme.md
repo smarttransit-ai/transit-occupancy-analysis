@@ -1,5 +1,6 @@
 <figure class = "image">
  <img src="Pictures/Inbound_Routes.png" align="right" width="450" height="400" caption="GTFS CARTA Dataset: Inbound Routes."/>
+ <figcaption>{{"GTFS CARTA Dataset: Inbound Routes."}}</figcaption>
 </figure>
 
 # Public Transportation Demand
