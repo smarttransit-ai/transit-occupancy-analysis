@@ -30,8 +30,8 @@ One key pending point is how to automatize model update as new data comes in. Fo
 ## Overview
 
 <figure class = "image">
- <img src="Pictures/data_structure_routes.png" align="center" width="550" height="400" caption="Data Structure."/>
- <figcaption align = "center">Figure 2. Data Structure.</figcaption>
+ <img src="Pictures/data_structure_routes.png" align="right" width="550" height="400" caption="Data Structure."/>
+ <figcaption align = "right">Figure 2. Data Structure.</figcaption>
 </figure>
 
 
