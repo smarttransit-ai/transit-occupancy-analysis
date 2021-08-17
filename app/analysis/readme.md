@@ -1,7 +1,7 @@
 # Public Transportation Demand
 
 <figure class = "image">
- <img src="Pictures/Inbound_Routes.png" align="center" width="450" height="400" caption="GTFS CARTA Dataset: Inbound Routes."/>
+ <img src="Pictures/Inbound_Routes.png" align="center" width="600" height="400" caption="GTFS CARTA Dataset: Inbound Routes."/>
  <figcaption align = "center">Figure 1. GTFS CARTA Dataset and its inbound routes.</figcaption>
 </figure>
 
@@ -29,8 +29,8 @@ This part
 ## Overview
 
 <figure class = "image">
- <img src="Pictures/data_structure_routes.png" align="center" width="450" height="400" caption="Data Structure."/>
- <figcaption align = "right">Figure 2. Data Structure.</figcaption>
+ <img src="Pictures/data_structure_routes.png" align="center" width="550" height="400" caption="Data Structure."/>
+ <figcaption align = "center">Figure 2. Data Structure.</figcaption>
 </figure>
 
 
