@@ -31,7 +31,6 @@ One key pending point is how to automatize model update as new data comes in. Fo
 
 <figure class = "image">
  <img src="Pictures/data_structure_routes.png" align="right" width="550" height="400" caption="Data Structure."/>
- <figcaption align = "right">Figure 2. Data Structure.</figcaption>
 </figure>
 
 
@@ -69,7 +68,6 @@ We performed two different data prepartions. One for the bus stop level analysis
 * 
 
 ## Folders and Characteristics
-
 
 
 ### Folder 1
