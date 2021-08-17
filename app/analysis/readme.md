@@ -8,7 +8,7 @@ This part of the repository contains some Python and R notebooks that were writt
 
 Besides that, we explain why the finals models were written in R instead of Python. Moreover, we expect that the information is sufficiently clear so other team members can extend the analysis to for example alight counts or occupancy.
 
-One key pending point is how to automatize model update as new data comes in.
+One key pending point is how to automatize model update as new data comes in. For example, the CARTA dataset used for analysis is from 2019-01-02 to 2020-05-31, and new data from GTFS and APC is being processed for further analysis.
 
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
