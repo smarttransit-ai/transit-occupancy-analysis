@@ -52,7 +52,7 @@ We performed two different data prepartions. One for the bus stop level analysis
 #### Bus Stop Level
 
 <figure class = "image">
- <img src="Pictures/data_structure_routes.png" align="right" width="550" height="400" caption="Data Structure."/>
+ <img src="Pictures/data_structure_routes.png" align="right" width="450" height="350" caption="Data Structure."/>
 </figure>
 
 * `GLM_Demand_Models_Function.ipynb`
