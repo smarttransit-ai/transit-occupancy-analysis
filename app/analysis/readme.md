@@ -1,13 +1,10 @@
 # Public Transportation Demand
 
 <figure class = "image">
- <img src="Pictures/Inbound_Routes.png" align="center" width="600" height="400" caption="GTFS CARTA Dataset: Inbound Routes."/>
- <figcaption align = "center">Figure 1. GTFS CARTA Dataset and its inbound routes.</figcaption>
+ <img src="Pictures/Inbound_Routes.png" align="center" width="450" height="400" caption="GTFS CARTA Dataset: Inbound Routes."/>
 </figure>
 
-
-
-This part
+This part of the repository contains some Python and R notebooks that were written to model and predict **Public Transportation Demand** (considering board counts only), and **Maximum Occupancy of Trips**. 
 
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
