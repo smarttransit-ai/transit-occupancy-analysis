@@ -5,7 +5,7 @@
  <figcaption align = "center">Figure 1. GTFS CARTA Dataset and its inbound routes.</figcaption>
 </figure>
 
-\\
+
 
 This part
 
@@ -30,10 +30,10 @@ This part
 
 <figure class = "image">
  <img src="Pictures/data_structure_routes.png" align="center" width="450" height="400" caption="Data Structure."/>
- <figcaption align = "center">Figure 2. Data Structure.</figcaption>
+ <figcaption align = "right">Figure 2. Data Structure.</figcaption>
 </figure>
 
-\\
+
 
 In this part of our repository you will find information about board count modeling at the bus stop level, and maximum occupancy at the trip level. The Models at the bus stop level were trained using data that was grouped by `route_id`, `direction id`, `stop_id`, and data partition. We created a unique folder for each bus stop to store the models and relevant data. The path to these folders follows a hierarchical structure given by their `route_id`, `direction id`, `stop_id`, and data partition. Therefore, we created two notebooks to aggregate the data. 
 
