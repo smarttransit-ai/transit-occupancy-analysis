@@ -6,3 +6,13 @@ This folder some data to run the notebooks in the `Related_Notebooks` folder. Th
 * `xPre_test_board_x.csv`
 * `xPost_train_board_x.csv`
 * `xPost_test_board_x.csv`
+
+Also, notice that the notebooks in the `Related_Notebooks` folder correspond to our initial modeling approaches, and thus they only have the following variables:
+
+* `board_count`
+* `month`
+* `service_kind`
+* `hour`
+* `mean_temp`
+* `mean_precip`
+* `surrounding_board_count`
