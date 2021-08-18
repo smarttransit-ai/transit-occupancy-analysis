@@ -40,13 +40,15 @@ R is an open source software that can be downloaded from [R Cran](https://cran.r
 We performed two different data prepartions. One for the bus stop level analysis, and another one for the trip analysis. We modeled transportation demand at the bus stop level by using board counts, and maximum occupancy -grouped by date and hour- for the trip analysis. In both cases, we stored the data based on the hierarchical structures given by the route, direction, and bus stop or trip ID. The following figure shows the data structure for the board count data and models:
 
 <figure class = "image">
- <img src="Pictures/data_structure_routes.png" align="center" width="450" height="350" caption="Bus Stop Data Structure."/>
+ <img src="Pictures/data_structure_routes.png" align="center" width="450" height="400" caption="Bus Stop Data Structure."/>
 </figure>
 
 The following figure shows the hierarchical structure for the maximum occupancy data and models:
 <figure class = "image">
- <img src="Pictures/Trip_Data_Structure.png" align="center" width="450" height="350" caption="Trip Data Structure."/>
+ <img src="Pictures/Trip_Data_Structure.png" align="center" width="450" height="400" caption="Trip Data Structure."/>
 </figure>
+
+
 
 #### Bus Stop Level
 
@@ -74,7 +76,11 @@ The following notebooks describe how the CARTA data was processed to obtain data
 
 ### Pictures
 
+It only contains the figures that are used in this readme document.
+
 ### Data Example
+
+This folder contain 
 
 ### Related Notebooks
 
