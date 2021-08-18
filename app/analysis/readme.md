@@ -37,11 +37,7 @@ R is an open source software that can be downloaded from [R Cran](https://cran.r
 
 ## Main Files
 
-We performed two different data prepartions. One for the bus stop level analysis, and another one for the trip analysis.
-
-* `Data_Preparation.ipynb`
-
-### Aggregated Performances
+We performed two different data prepartions. One for the bus stop level analysis, and another one for the trip analysis. We modeled transportation demand at the bus stop level by using board counts, and maximum occupancy -grouped by date and hour- for the trip analysis. In both cases, the datasets were stored in folders that f
 
 #### Bus Stop Level
 
@@ -49,6 +45,9 @@ We performed two different data prepartions. One for the bus stop level analysis
  <img src="Pictures/data_structure_routes.png" align="right" width="450" height="350" caption="Data Structure."/>
 </figure>
 
+The following notebooks describe how the CARTA data was processed to obtain datasets for modeling purposes. 
+
+* `Data_Preparation.ipynb`: This is notebook was written in Python. It shows the initial data partitial into pre- and post-lockdown datasets based on Chattanooga's ridership steep decline, which started the week of March 5th (2020-03-05). Then, it calculates the surrounding board counts by aggregating the board count data from the bus stops that are within a half-mile radius from a referenced bus stop (`radial_influence()`). Finally, it extracts the datasets for modeling purposes (`data_extraction()`).
 * `GLM_Demand_Models_Function.ipynb`
 * `Rand_Forest_ML.ipynb`
 * `Rand_Forest_ML2.ipynb`
@@ -61,6 +60,8 @@ We performed two different data prepartions. One for the bus stop level analysis
 * `Trip_Level_Modeling_R.ipynb`
 * `Trip_Analysis1.ipynb`
 * `Trip_Analysis2.ipynb`
+
+### Aggregated Performances
 
 ## Folders and Characteristics
 
