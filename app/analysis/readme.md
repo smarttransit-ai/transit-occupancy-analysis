@@ -48,11 +48,7 @@ The following figure shows the hierarchical structure for the maximum occupancy 
  <img src="Pictures/Trip_Data_Structure.png" align="center" width="450" height="400" caption="Trip Data Structure."/>
 </figure>
 
-
-
 #### Bus Stop Level
-
-
 
 The following notebooks describe how the CARTA data was processed to obtain datasets for modeling purposes. 
 
@@ -70,6 +66,10 @@ The following notebooks describe how the CARTA data was processed to obtain data
 * `Trip_Analysis1.ipynb`
 * `Trip_Analysis2.ipynb`
 
+Finally, the following notebook shows how to use the `gtfs_functions` package in Python:
+
+* `Carta2018_gtfs_segments`: This notebook explains how to use (or apply) the `gtfs_functions` package using the 2018 gtfs CARTA data. Although, it shows we can reproduce all the processes without problems, we still need to design a way to 'automatize' the gtfs schedules with the data-times of the APC data. Once we solve this, we could simulataneously query (or model) gtfs (using `gtfs_functions`) data and APC data.
+
 ### Aggregated Performances
 
 ## Folders and Characteristics
@@ -80,17 +80,11 @@ It only contains the figures that are used in this readme document.
 
 ### Data Example
 
-This folder contain 
+This folder contains data to run the notebooks in the `Related_Notebooks` folder. The data was extracted from `route_id == '4'`, `direction_id == '0'`, and `stop_id == '12'`.
 
 ### Related Notebooks
 
-This folder is where the analysis and results are kept. 
-
-* `Data_Preparation.ipynb`: This notebook is written in python and prepares the data (in this case the CARTA dataset) for regression. Part of its main function is export the prepared data as `*.csv` to a folder that characterizes its dependendent variable (board or alight counts) and its `route_id`, `direction_id`, and `stop_id`.
-*  `Carta2018_gtfs_segments`: This notebook explains how to use (or apply) the `gtfs_functions` package using the 2018 gtfs CARTA data. Although, it shows we can reproduce all the processes without problems, we still need to design a way to 'automatize' the gtfs schedules with the data-times of the APC data. Once we solve this, we could simulataneously query (or model) gtfs (using `gtfs_functions`) data and APC data.
-*  `Data_Example`: This folder has some data that can be used to run the notebooks.
-* `Rand_Forest_L.ipynb`: This notebook contains the Random Forest based models at the bus stop level. This code was written in R. There two models in this notebook: Zero-Inflated Random Forest and (Vanilla) Random Forest.
-* `Trip_Analysis1.ipynb`: This notebook contains the Random Forest based models at the trip stop level. This code was written in R.
+Our initial modeling approaches are stored in this folder. The Data Example folder has data to run the notebooks in this folder.
 
 ## Acknowledgements
 
