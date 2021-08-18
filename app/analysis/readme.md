@@ -19,7 +19,7 @@ One key pending point is how to automatize model update as new data comes in. Fo
   * [Aggregated Performances](#aggregated-performances)
 * [Folders and Characteristics](#files-characteristics)
   * [Pictures](#folder1)
-  * [Data_Example](#data-example)
+  * [Data Example](#data-example)
   * [Related Notebooks](#related-notebooks)
 * [Acknowledgements](#acknowledgements)
 
@@ -63,6 +63,8 @@ We performed two different data prepartions. One for the bus stop level analysis
 * `Trip_Analysis2.ipynb`
 
 ## Folders and Characteristics
+
+### Pictures
 
 ### Data Example
 
