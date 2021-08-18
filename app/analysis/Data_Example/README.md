@@ -1,3 +1,3 @@
 # Readme
 
-This folder some data to run the notebooks.
+This folder some data to run the notebooks in the `Related_Notebooks` folder.
