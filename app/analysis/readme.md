@@ -46,9 +46,6 @@ We performed two different data prepartions. One for the bus stop level analysis
 
 ### Aggregated Performances
 
-
-
-
 #### Bus Stop Level
 
 <figure class = "image">
@@ -64,9 +61,11 @@ We performed two different data prepartions. One for the bus stop level analysis
 #### Trip Level
 
 * `Trip_Data_Generation.ipynb`
+* `Trip_Level_Modeling_R.ipynb`
+* `Trip_Analysis1.ipynb`
+* `Trip_Analysis2.ipynb`
 
 ## Folders and Characteristics
-
 
 ### Folder 1
 
