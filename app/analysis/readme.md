@@ -21,9 +21,6 @@ One key pending point is how to automatize model update as new data comes in. Fo
   * [Pictures](#folder1)
   * [Data_Example](#data-example)
   * [Related Notebooks](#related-notebooks)
-* [Contribution](#contribution)
-* [License](#license)
-* [Contact](#contact)
 * [Acknowledgements](#acknowledgements)
 
 
@@ -67,7 +64,7 @@ We performed two different data prepartions. One for the bus stop level analysis
 
 ## Folders and Characteristics
 
-### Folder 1
+### Data Example
 
 ### Related Notebooks
 
@@ -78,12 +75,6 @@ This folder is where the analysis and results are kept.
 *  `Data_Example`: This folder has some data that can be used to run the notebooks.
 * `Rand_Forest_L.ipynb`: This notebook contains the Random Forest based models at the bus stop level. This code was written in R. There two models in this notebook: Zero-Inflated Random Forest and (Vanilla) Random Forest.
 * `Trip_Analysis1.ipynb`: This notebook contains the Random Forest based models at the trip stop level. This code was written in R.
-
-## Contribution
-
-## License
-
-## Contact
 
 ## Acknowledgements
 
