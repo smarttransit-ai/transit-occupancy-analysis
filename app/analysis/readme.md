@@ -40,12 +40,12 @@ R is an open source software that can be downloaded from [R Cran](https://cran.r
 We performed two different data prepartions. One for the bus stop level analysis, and another one for the trip analysis. We modeled transportation demand at the bus stop level by using board counts, and maximum occupancy -grouped by date and hour- for the trip analysis. In both cases, we stored the data based on the hierarchical structures given by the route, direction, and bus stop or trip ID. The following figure shows the data structure for the board count data and models:
 
 <figure class = "image">
- <img src="Pictures/data_structure_routes.png" align="center" width="450" height="500" caption="Bus Stop Data Structure."/>
+ <img src="Pictures/data_structure_routes.png" align="center" width="600" height="800" caption="Bus Stop Data Structure."/>
 </figure>
 
 The following figure shows the hierarchical structure for the maximum occupancy data and models:
 <figure class = "image">
- <img src="Pictures/Trip_Data_Structure.png" align="center" width="450" height="500" caption="Trip Data Structure."/>
+ <img src="Pictures/Trip_Data_Structure.png" align="center" width="600" height="800" caption="Trip Data Structure."/>
 </figure>
 
 #### Bus Stop Level
@@ -54,7 +54,7 @@ The following notebooks describe how the CARTA data was processed to obtain data
 
 * `Data_Preparation.ipynb`: This notebook was written in Python. It shows the initial data partitial into pre- and post-lockdown datasets based on Chattanooga's ridership steep decline, which started the week of March 5th (2020-03-05). Then, it calculates the surrounding board counts by aggregating the board count data from the bus stops that are within a half-mile radius from a referenced bus stop (`radial_influence()`). Finally, it extracts the datasets for modeling purposes (`data_extraction()`).
 * `GLM_Demand_Models_Function.ipynb`: This notebook was written in R and shows how to train the models that are based on the Generalized Linear Model theory. It explains how the train and test RMSEs can be calculated using a k-fold cross-validation approach. Its main function -`all_models_cv()`- is able to extract the data for modeling using the `route_id`, `direction_id`, and `stop_id` values. Also, its outputs are stored using the input data values.
-* `Rand_Forest_ML.ipynb`
+* `Rand_Forest_ML.ipynb`: This notebook was written in R and shows how to build our proposed Zero-Inflated Random Forest model. The function `RF_Ferns_and_Ranger()` was built to train and tune the model and its parameters. This function is able to extract the data for modeling using the `route_id`, `direction_id`, and `stop_id` values. Also, its outputs are stored using the input data values.
 * `Rand_Forest_ML2.ipynb`
 * `All_GLM_Models_Performance.ipynb`
 * `RF_Performance.ipynb`
