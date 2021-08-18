@@ -16,7 +16,8 @@ One key pending point is how to automatize model update as new data comes in. Fo
 * [Overview](#overview)
   * [Getting Started](#getting-started)
 * [Main Files](#main-files)
-  * [Aggregated Performances](#aggregated-performances)
+  * [Bus Stop Level](#bus-stop-level)
+  * [Trip Level](#trip-level)
 * [Folders and Characteristics](#files-characteristics)
   * [Pictures](#folder1)
   * [Data Example](#data-example)
@@ -58,16 +59,16 @@ The following notebooks describe how the CARTA data was processed to obtain data
 
 #### Trip Level
 
-* `Trip_Data_Generation.ipynb`
-* `Trip_Level_Modeling_R.ipynb`
-* `Trip_Analysis1.ipynb`
+All the analysis for maximum occupancy was done using R. 
+
+* `Trip_Data_Generation.ipynb`: This notebook shows how to generate the trip data to model maximum occupancy.
+* `Trip_Level_Modeling_R.ipynb`: This notebook shows how to train the models that are based on the Generalized Linear Model theory. It explains how the train and test RMSEs can be calculated using a k-fold cross-validation approach.
+* `Trip_Analysis1.ipynb`: 
 * `Trip_Analysis2.ipynb`
 
 Finally, the following notebook shows how to use the `gtfs_functions` package in Python:
 
 * `Carta2018_gtfs_segments`: This notebook explains how to use (or apply) the `gtfs_functions` package using the 2018 gtfs CARTA data. Although, it shows we can reproduce all the processes without problems, we still need to design a way to 'automatize' the gtfs schedules with the data-times of the APC data. Once we solve this, we could simulataneously query (or model) gtfs (using `gtfs_functions`) data and APC data.
-
-### Aggregated Performances
 
 ## Folders and Characteristics
 
