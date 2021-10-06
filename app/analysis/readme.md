@@ -27,7 +27,9 @@ One key pending point is how to automatize model update as new data comes in. Fo
 
 ## Overview
 
-In this part of our repository you will find information about board count modeling at the bus stop level, and maximum occupancy at the trip level. The Models at the bus stop level were trained using data that was grouped by `route_id`, `direction id`, `stop_id`, and data partition. We created a unique folder for each bus stop to store the models and relevant data. The path to these folders follows a hierarchical structure given by their `route_id`, `direction id`, `stop_id`, and data partition. Therefore, we created two notebooks to aggregate the data. 
+R and Python can run in any Operative System, so the notebooks and files should run in any OS without any issues. However, there are some required packages for R and Python that are presented at the beginning of each notebook. 
+
+Here, you will find information about board count modeling at the bus stop level, and maximum occupancy at the trip level. The Models at the bus stop level were trained using data that was grouped by `route_id`, `direction id`, `stop_id`, and data partition. We created a unique folder for each bus stop to store the models and relevant data. The path to these folders follows a hierarchical structure given by their `route_id`, `direction id`, `stop_id`, and data partition. Therefore, we created two notebooks to aggregate the data. 
 
 
 Similarly, the trip data was grouped by `route_id`, `direction id`, and data partition. We created a unique folder for each trip.v
