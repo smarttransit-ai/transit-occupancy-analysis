@@ -90,8 +90,8 @@ plot(wego_stations)
 
 Weather_DF <- weather_df %>%
   mutate(local_hour = format(as.POSIXct(timestamp_local), format = '%H')) %>%
-  select(station_id, gps_coordinate_latitude,gps_coordinate_longitude,
-         timestamp_utc, timestamp_local, temp, precip, month, year,
+  dplyr::select(station_id, gps_coordinate_latitude,gps_coordinate_longitude,
+         timestamp_utc, timestamp_local, snow, temp, precip, month, year,
          window, day, local_hour)
 
 # Delete main dataframe:
@@ -348,7 +348,7 @@ temperature_estimate(2021, 2, 19, '12', "Combined")
 
 
 #-------------------------------------------------------------------------------
-# Function to extrapolate temperature:
+# Function to extrapolate precipitation:
 
 precipitation_estimate <- function(yr, mn, dy, hr, Output_format){
   
@@ -407,3 +407,120 @@ precipitation_estimate <- function(yr, mn, dy, hr, Output_format){
 }
 
 precipitation_estimate(2021, 2, 19, '12', "Combined")
+
+
+
+#-------------------------------------------------------------------------------
+# Function to extrapolate snow:
+
+snow_estimate <- function(yr, mn, dy, hr, Output_format){
+  
+  options(warn=-1)
+  
+  
+  snow_df <- Weather_DF %>%
+    filter(month == mn, year == yr, day == dy, local_hour == hr)
+  
+  
+  colnames(snow_df)[2:3] <- c('y', 'x')
+  
+  coordinates(snow_df) <- ~x+y
+  proj4string(snow_df) <- CRS("+init=epsg:32136")
+  
+  formula_precip <- as.formula(snow ~ x + y)
+  
+  ## Auto-Variogram:
+  
+  snow_auto_vgm <- autofitVariogram(formula_precip, snow_df)
+  
+  snow_auto_krige <- autoKrige(formula_precip,
+                               snow_df,
+                               wego_stations)
+  
+  ## Auto-Kriging:
+  
+  snow_auto_krige <- autoKrige(formula_precip,
+                               snow_df,
+                               wego_stations)
+  
+  snow_estimates <- data.frame(snow_auto_krige[["krige_output"]]@data)
+  colnames(snow_estimates) <- c('Predicted_snow', 'Variance', 'St_Dev')
+  
+  if(Output_format == 'Estimate'){
+    
+    return(snow_estimates)
+    
+  }
+  else if(Output_format == 'Combined'){
+    
+    output = data.frame(wego_stations@data, snow_estimates)
+    return(output)
+    
+  }
+  else{
+    
+    return(snow_estimates$Predicted_snow) 
+    
+  }
+  
+}
+
+snow_estimate(2021, 2, 19, '12', "Combined")
+
+
+#-------------------------------------------------------------------------------
+# Function to extrapolate cummulatie snow (day before):
+
+cum_snow_estimate <- function(yr, mn, dy, hr, Output_format){ # Work it!
+  
+  options(warn=-1)
+  
+  
+  snow_df <- Weather_DF %>%
+    filter(month == mn, year == yr, day == dy, local_hour == hr)
+  
+  
+  colnames(snow_df)[2:3] <- c('y', 'x')
+  
+  coordinates(snow_df) <- ~x+y
+  proj4string(snow_df) <- CRS("+init=epsg:32136")
+  
+  formula_precip <- as.formula(snow ~ x + y)
+  
+  ## Auto-Variogram:
+  
+  snow_auto_vgm <- autofitVariogram(formula_precip, snow_df)
+  
+  snow_auto_krige <- autoKrige(formula_precip,
+                               snow_df,
+                               wego_stations)
+  
+  ## Auto-Kriging:
+  
+  snow_auto_krige <- autoKrige(formula_precip,
+                               snow_df,
+                               wego_stations)
+  
+  snow_estimates <- data.frame(snow_auto_krige[["krige_output"]]@data)
+  colnames(snow_estimates) <- c('Predicted_snow', 'Variance', 'St_Dev')
+  
+  if(Output_format == 'Estimate'){
+    
+    return(snow_estimates)
+    
+  }
+  else if(Output_format == 'Combined'){
+    
+    output = data.frame(wego_stations@data, snow_estimates)
+    return(output)
+    
+  }
+  else{
+    
+    return(snow_estimates$Predicted_snow) 
+    
+  }
+  
+}
+
+snow_estimate(2021, 2, 19, '12', "Combined")
